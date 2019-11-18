@@ -3,7 +3,7 @@ const CarMarketPlace = artifacts.require("CarMarketPlace");
 contract("CarMarketPlace", async accounts => {
 	
 	let firstAccount = accounts[0];
-	let secondAccount = accounts[1]; //Seller 1	
+	let seller1 = accounts[1]; //Seller 1	
 	let thirdAccount = accounts[2]; //Seller 2
 	let fourthAccount = accounts[3]; //Buyer 1
 	let fifthAccount = accounts[4]; //Buyer 2
@@ -20,13 +20,13 @@ contract("CarMarketPlace", async accounts => {
 	});
 	
 	it("Initial cars for sale should be empty", async () => {
-		assert.equal(await carMarketPlace.getNumberOfCarsForSale.call(secondAccount), 0);
+		assert.equal(await carMarketPlace.getNumberOfCarsForSale.call(seller1), 0);
 		assert.equal(await carMarketPlace.getNumberOfCarsForSale.call(thirdAccount), 0);
 	});	
 	
-	it("Should create a car which is sellable", async () => {
-		let tx = await carMarketPlace.createCarForSale("V1","Ford","Mustang",2019,web3.utils.toWei('1', 'Ether'),{from: secondAccount});
-		assert.equal(await carMarketPlace.getNumberOfCarsForSale.call(secondAccount), 1);
+	it("Should create a car for sale", async () => {
+		let tx = await carMarketPlace.createCarForSale("V1","Ford","Mustang",2019,web3.utils.toWei('1', 'Ether'),{from: seller1});
+		assert.equal(await carMarketPlace.getNumberOfCarsForSale.call(seller1), 1);
 		
 		assert.equal(tx.receipt.logs.length, 1, "createCarForSale() call did not log 1 event");
 		assert.equal(tx.logs.length, 1, "createCarForSale() call did not log 1 event");
@@ -40,15 +40,48 @@ contract("CarMarketPlace", async accounts => {
 		assert.equal(event.price, '1000000000000000000', 'Price is correct');
 	});
 	
-	/*it("Should throw an error when request is empty", async () => {
+	it("Should not create a car for sale when data is invalid", async () => {
 		try {
-			await carMarketPlace.getNumberOfCarsForSale({from: secondAccount});
+			//Vin is invalid
+			await carMarketPlace.createCarForSale("","Ford","Mustang",2019,web3.utils.toWei('1', 'Ether'),{from: seller1});
 			assert.fail();
 		} catch (err) {
 			assert.ok(/revert/.test(err.message));
 		}
-	});*/	
-	
+		
+		try {
+			//Make is invalid
+			await carMarketPlace.createCarForSale("V1","","Mustang",2019,web3.utils.toWei('1', 'Ether'),{from: seller1});
+			assert.fail();
+		} catch (err) {
+			assert.ok(/revert/.test(err.message));
+		}
+		
+		try {
+			//Model is invalid
+			await carMarketPlace.createCarForSale("V1","Ford","",2019,web3.utils.toWei('1', 'Ether'),{from: seller1});
+			assert.fail();
+		} catch (err) {
+			assert.ok(/revert/.test(err.message));
+		}
+		
+		try {
+			//Year is invalid
+			await carMarketPlace.createCarForSale("V1","Ford","Mustang",1999,web3.utils.toWei('1', 'Ether'),{from: seller1});
+			assert.fail();
+		} catch (err) {
+			assert.ok(/revert/.test(err.message));
+		}
+		
+		try {
+			//Price is invalid
+			await carMarketPlace.createCarForSale("","Ford","Mustang",2019,100,{from: seller1});
+			assert.fail();
+		} catch (err) {
+			assert.ok(/revert/.test(err.message));
+		}		
+		
+	});
 	
 	
 });
