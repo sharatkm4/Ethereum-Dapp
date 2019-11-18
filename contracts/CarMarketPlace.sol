@@ -17,6 +17,7 @@ contract CarMarketPlace {
     }
     
     mapping(address => Car[]) public sellerCarsMap;
+    mapping(string => bool) public uniqueVinMap;
     
     event CarOnSale(string vin, string make, string model, uint year, uint price);
     
@@ -28,10 +29,17 @@ contract CarMarketPlace {
 		require(price > 100000, "Price is invalid !!");
         _;
     }
+    
+    modifier validateUniqueVin(string memory vin) {
+        require(uniqueVinMap[vin] != true, "VIN already exist !!");
+        _;
+    }
 	
-	function createCarForSale(string memory _vin, string memory _make, string memory _model, uint _year, uint _price) public validateSellCarRequest(_vin, _make, _model, _year, _price) {
+	function createCarForSale(string memory _vin, string memory _make, string memory _model, uint _year, uint _price) public validateSellCarRequest(_vin, _make, _model, _year, _price) validateUniqueVin(_vin) {
         // Seller Creates car and puts on sale
         sellerCarsMap[msg.sender].push(Car(_vin, _make, _model, _year, _price));
+		//Map used later to check and avoid creating duplicate cars/vins for sale
+        uniqueVinMap[_vin] = true;
         // Trigger an event 
         emit CarOnSale(_vin, _make, _model, _year, _price);
     }	
