@@ -25,9 +25,20 @@ contract("CarMarketPlace", async accounts => {
 	});	
 	
 	it("Should create a car which is sellable", async () => {
-		await carMarketPlace.createCarForSale("V1","Ford","Mustang",2019,100000, {from: secondAccount});
+		let tx = await carMarketPlace.createCarForSale("V1","Ford","Mustang",2019,web3.utils.toWei('1', 'Ether'),{from: secondAccount});
 		assert.equal(await carMarketPlace.getNumberOfCarsForSale.call(secondAccount), 1);
-	});	
+		
+		assert.equal(tx.receipt.logs.length, 1, "createCarForSale() call did not log 1 event");
+		assert.equal(tx.logs.length, 1, "createCarForSale() call did not log 1 event");
+		assert.equal(tx.logs[0].event, "CarOnSale", "createCarForSale() call did not log event CarOnSale");
+		
+		const event = tx.logs[0].args;
+		assert.equal(event.vin, 'V1', 'Vin is correct');
+		assert.equal(event.make, 'Ford', 'Make is correct');
+		assert.equal(event.model, 'Mustang', 'Model is correct');
+		assert.equal(event.year.toNumber(), 2019, 'Year is correct');
+		assert.equal(event.price, '1000000000000000000', 'Price is correct');
+	});
 	
 	/*it("Should throw an error when request is empty", async () => {
 		try {

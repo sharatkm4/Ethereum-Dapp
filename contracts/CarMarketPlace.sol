@@ -27,7 +27,7 @@ contract CarMarketPlace {
         _;
     }*/
     
-    /*event CarOnSale(string vin, string make, string model, uint year, uint price);*/
+    event CarOnSale(string vin, string make, string model, uint year, uint price);
     
     /*function createCarForSale(string memory _vin, string memory _make, string memory _model, uint _year, uint _price) public validateSellCarRequest(_vin, _make, _model, _year, _price) {
         // Seller Creates car and puts on sale
@@ -41,7 +41,7 @@ contract CarMarketPlace {
         // Seller Creates car and puts on sale
         sellerCarsMap[msg.sender].push(Car(_vin, _make, _model, _year, _price));
         // Trigger an event 
-        //emit CarOnSale(_vin, _make, _model, _year, _price);
+        emit CarOnSale(_vin, _make, _model, _year, _price);
     }	
     
     function getNumberOfCarsForSale(address _seller) public view returns(uint) {
