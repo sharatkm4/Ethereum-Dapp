@@ -1,0 +1,27 @@
+{
+  "name": "Ethereum-Dapp",
+  "version": "1.0.0",
+  "description": "Ethereum based DApp project as part of Kingsland University course.",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test",
+	"test:coverage": "solidity-coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sharatkm4/Ethereum-Dapp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sharatkm4/Ethereum-Dapp/issues"
+  },
+  "homepage": "https://github.com/sharatkm4/Ethereum-Dapp#readme",
+  "devDependencies": {
+    "solidity-coverage": "^0.6.2"
+  }
+}
