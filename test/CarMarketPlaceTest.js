@@ -75,7 +75,7 @@ contract("CarMarketPlace", async accounts => {
 		
 		try {
 			//Price is invalid
-			await carMarketPlace.createCarForSale("","Ford","Mustang",2019,100,{from: seller1});
+			await carMarketPlace.createCarForSale("V1","Ford","Mustang",2019,999,{from: seller1});
 			assert.fail();
 		} catch (err) {
 			assert.ok(/revert/.test(err.message));

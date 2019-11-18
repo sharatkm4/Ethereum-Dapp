@@ -25,7 +25,7 @@ contract CarMarketPlace {
 		require(bytes(make).length > 0, "Make is invalid !!");
 		require(bytes(model).length > 0, "Model is invalid !!");
 		require(year >= 2000, "Year is invalid !!");
-		require(price > 0, "Price is invalid !!");
+		require(price > 100000, "Price is invalid !!");
         _;
     }
 	
