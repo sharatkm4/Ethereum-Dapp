@@ -1,8 +1,8 @@
-pragma solidity ^0.5.8;
+pragma solidity ^0.5.1;
 
 contract CarMarketPlace {
     
-    address payable private owner;
+    address payable public owner;
     
     constructor() public {
         owner = msg.sender;
