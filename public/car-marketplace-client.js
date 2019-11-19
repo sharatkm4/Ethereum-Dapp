@@ -185,6 +185,10 @@ $(document).ready(function () {
 		"type": "function"
 	}
 ];
+
+	const IPFS = window.IpfsApi('localhost','5001');
+	const Buffer = IPFS.Buffer;
+	
     const carMarketplaceContract = new ethers.Contract(carMarketplaceContractAddress, carMarketplaceContractABI, ethereumProvider);
 
     showView("viewHome");
@@ -371,7 +375,7 @@ $(document).ready(function () {
 			for (var i = 1; i <= candidatesCount; i++) {
 				let car = await carMarketplaceContract.carsMap(i);
 				if(!car.purchased) {
-					let li = $('<li>').html(`<b>Vehicle</b> ${i}: <b>Vin:</b> ${car.vin} <b>Make:</b> ${car.make} <b>Model:</b> ${car.model} <b>Year:</b> ${car.year} <b>Price:</b> ${car.price} `);
+					let li = $('<li>').html(`<b>Vehicle ${i}</b>: <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${car.make} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${car.model} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${car.year} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} <br/> <img src='https://ipfs.io/ipfs/QmTFGxtXCWZeTKeJfP7pkNtk6Y1W2Y7ophizwG26ApoBEz' alt='BMW 4 Series' style='width:400px;height:200px;' > <br/>`);
 					li.appendTo(votingResultsUl);
 				}
 			}			
@@ -487,13 +491,34 @@ $(document).ready(function () {
 			
 			let carMarketplaceContract = web3.eth.contract(carMarketplaceContractABI).at(carMarketplaceContractAddress);
 			console.log('carMarketplaceContract: ', carMarketplaceContract);
-		
-			carMarketplaceContract.createCarForSale(carSaleVIN, carSaleMake, carSaleModel, carSaleYear, carSalePrice, function (err, txHash) {
+			
+			if($('#carImageForUpload')[0].files.length === 0) {
+				return showError("Please select a file to upload");
+			}
+			
+			let fileReader = new FileReader();
+			fileReader.onload = function () {			
+				let fileBuffer = Buffer.from(fileReader.result);			
+
+				IPFS.files.add(fileBuffer, (err, result) => {
+					if(err)
+						return showError('Error while adding files to IPSF: ' + err);
+					if(result) {
+						let ipfsHash = result[0].hash;
+						console.log('Image added to IPFS successfully with hash: ', ipfsHash);
+						
+						carMarketplaceContract.createCarForSale(carSaleVIN, carSaleMake, carSaleModel, carSaleYear, carSalePrice, function (err, txHash) {
 							if (err)
 								return showError("Smart contract call failed when creating your car sale: " + err);
-							showInfo(`Your car has been <b>successfully listed</b> for sale. Transaction hash: ${txHash}`);
-							showView("viewHome");
+							console.log(`Your car has been <b>successfully listed</b> for sale. Transaction hash: ${txHash}`);
+							showInfo(`Your car has been <b>successfully listed</b> for sale. Transaction hash: ${txHash}`);							
 						});
+					}
+				})	
+			};
+			fileReader.readAsArrayBuffer($('#carImageForUpload')[0].files[0]);
+		
+			
 		} catch(err) {
 			showError("Cannot create car sale. Please try again later.", err);
 		} finally {

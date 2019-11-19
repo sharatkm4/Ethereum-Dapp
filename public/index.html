@@ -12,6 +12,7 @@
     <script src="lib/cryptojs-hmac-sha256.js"></script>
     <script src="car-marketplace-client.js"></script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://unpkg.com/ipfs-api/dist/index.js"></script>
 </head>
 
 <body>
@@ -62,15 +63,17 @@
 	
 	<section id="viewCreateCarSale">
         <h1>List your car for sale</h1>
-        <div>VIN: <input type="text" id="carSaleVINId"></div>
-		<div>Make: <select name="carSaleMake" id="carSaleMakeId">
+        <div>VIN:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="carSaleVINId"></div>
+		<div>Make:&nbsp;&nbsp;&nbsp;<select name="carSaleMake" id="carSaleMakeId">
 							<option id="BMW">BMW</option>
 							<option id="Audi">Audi</option>
 							<option id="Mercedez-Benz">Mercedez-Benz</option>
 						   </select></div>
-		<div>Model: <input type="text" id="carSaleModelId"></div>
-		<div>Year: <input type="number" id="carSaleYearId"></div>
-		<div>Price: <input type="number" id="carSalePriceId"></div>	        
+		<div>Model:&nbsp;<input type="text" id="carSaleModelId"></div>
+		<div>Year:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="number" id="carSaleYearId"></div>
+		<div>Price:&nbsp;&nbsp;&nbsp;&nbsp;<input type="number" id="carSalePriceId"></div><br/>
+		<div>Upload Car image:  <input type="file" id="carImageForUpload" /></div>
+		<br/>
         <input type="button" id="buttonCreateCarSale" value="Create car Sale"/>
     </section>
 
