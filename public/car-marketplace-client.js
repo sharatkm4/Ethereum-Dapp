@@ -194,17 +194,41 @@ $(document).ready(function () {
     });
 
     $('#linkLogin').click(function () {
+		/*if (window.ethereum) {
+			window.ethereum.enable();
+		} else {
+			return showError("Please install Metamask in your browser to register, login, buy and sell cars.");			
+		}*/
         showView("viewLogin");
     });
 
     $('#linkRegister').click(function () {
+		/*if (window.ethereum) {
+			window.ethereum.enable();
+		} else {
+			return showError("Please install Metamask in your browser to register, login, buy and sell cars.");			
+		}*/
+		/*web3.eth.getAccounts((err, accounts) => {
+			//if (!err && accounts.length > 0){
+			if (err || accounts.length == 0){
+				return showError("Please unlock Metamask in your browser to register, login, buy and sell cars.");
+			}
+		});*/	
+		/*if (typeof web3 === 'undefined')
+			return showError("Please install Metamask to access the Ethereum Web3 API from your web browser");
+		}*/
         showView("viewRegister");
     });
+	
+	$('#linkCreateCarSale').click(function () {
+		showView("viewCreateCarSale");
+	});	
 
     $('#linkLogout').click(logout);
 
     $('#buttonLogin').click(login);
     $('#buttonRegister').click(register);
+	$('#buttonCreateCarSale').click(createCarSale);
 
     function showView(viewName) {
         // Hide all views and show the selected view only
@@ -218,6 +242,12 @@ $(document).ready(function () {
             $('.show-after-login').hide();
             $('.hide-after-login').show();
         }
+		const buyerSellerType = sessionStorage.buyerSellerType;
+		//alert(buyerSellerType);
+		if(loggedIn && buyerSellerType === 'seller')			
+			$('.show-sell-car-after-login').show();
+		else 
+			$('.show-sell-car-after-login').hide();
         if (viewName === 'viewHome')
             loadVotingResults();
     }
@@ -258,8 +288,19 @@ $(document).ready(function () {
     }
 
     async function login() {
+		
+		// validate username
         let username = $('#usernameLogin').val();
+		if(!username || !username.trim().length > 0){
+			showError("Invalid Username.");
+			return;
+		}
 		let walletPassword = $('#passwordLogin').val();
+		if(!walletPassword || !walletPassword.trim().length > 0 ){
+			showError("Invalid password.");
+			return;
+		}
+		
 		let backendPassword = CryptoJS.HmacSHA256(username, walletPassword).toString();
 		try {
 			let result = await $.ajax({
@@ -271,13 +312,12 @@ $(document).ready(function () {
 			
 			sessionStorage['username'] = username;
 			sessionStorage['jsonWallet'] = result.jsonWallet;
-			sessionStorage['buyerSellerType'] = result.buyerSellerType;
-			alert(sessionStorage['buyerSellerType']);
+			sessionStorage['buyerSellerType'] = result.buyerSellerType;			
 			showView("viewHome");
 			showInfo(`User "${username}" logged in successfully.`);
 
 		} catch(err) {
-			showError("Cannot login user.", err);
+			showError("Cannot login user. ", err);
 		}
     }
 
@@ -285,13 +325,13 @@ $(document).ready(function () {
 		// validate username
         let username = $('#usernameRegister').val();
 		if(!username || !username.trim().length > 0){
-			showError("Invalid Username !!");
+			showError("Invalid Username.");
 			return;
 		}
 		
 		let walletPassword = $('#passwordRegister').val();		
 		if(!walletPassword || !walletPassword.trim().length > 0 ){
-			showError("Invalid password !!");
+			showError("Invalid password.");
 			return;
 		}
 		
@@ -316,7 +356,7 @@ $(document).ready(function () {
 			showInfo(`User "${username}" registered successfully. Please save your mnemonic: <b>${wallet.mnemonic}</b>`);
 
 		} catch(err) {
-			showError("Cannot register user.", err);
+			showError("Cannot register user. ", err);
 		} finally {
 			hideProgressProgress();
 		}
@@ -382,6 +422,80 @@ $(document).ready(function () {
 			hideProgressProgress();
 		}
     }
+	
+	function createCarSale() {
+		
+		//Validate VIN
+		let carSaleVIN = $('#carSaleVINId').val();		
+		if(!carSaleVIN || !carSaleVIN.trim().length > 0 ){
+			showError("Invalid VIN.");
+			return;
+		}
+		
+		//Validate Make
+		let carSaleMake = $('#carSaleMakeId option:selected').attr('id');
+		if(!carSaleMake || !carSaleMake.trim().length > 0 ){
+			showError("Invalid Make.");
+			return;
+		}
+		
+		//Validate Model
+		let carSaleModel = $('#carSaleModelId').val();		
+		if(!carSaleModel || !carSaleModel.trim().length > 0 ){
+			showError("Invalid Model.");
+			return;
+		}
+		
+		//Validate Model Year
+		let carSaleYear = $('#carSaleYearId').val();
+		if(!carSaleYear){
+			showError("Invalid model Year.");
+			return;
+		}
+		carSaleYear = parseInt(carSaleYear);		
+		if(!(carSaleYear > parseInt(2000))){
+			showError("Your car must be greater than model year 2000.");
+			return;
+		}
+		
+		//Validate Sale Price
+		let carSalePrice = $('#carSalePriceId').val();
+		if(!carSalePrice){
+			showError("Invalid listed price.");
+			return;
+		}		
+		carSalePrice = parseInt(carSalePrice);
+		if(!(carSalePrice >parseInt(100000))){
+			showError("Car price must be greater that 10000.");
+			return;
+		}
+		
+		//alert(carSaleVIN + ':' + carSaleMake + ':' + carSaleModel + ':' + carSaleYear + ':' + carSalePrice);
+				
+		/*try {
+			let wallet = ethers.Wallet.createRandom();			
+			let jsonWallet = await wallet.encrypt(walletPassword, {}, showProgressBox);			
+			let backendPassword = CryptoJS.HmacSHA256(username, walletPassword).toString();
+						
+			let result = await $.ajax({
+				type: 'POST',
+				url: `/register`,
+				data: JSON.stringify({username, password: backendPassword, jsonWallet, buyerSellerType}),
+				contentType: 'application/json'
+			});
+			
+			sessionStorage['username'] = username;
+			sessionStorage['jsonWallet'] = jsonWallet;
+			sessionStorage['buyerSellerType'] = buyerSellerType;
+			showView("viewHome");
+			showInfo(`User "${username}" registered successfully. Please save your mnemonic: <b>${wallet.mnemonic}</b>`);
+
+		} catch(err) {
+			showError("Cannot register user. ", err);
+		} finally {
+			hideProgressProgress();
+		}*/
+	}
 
     function logout() {
         sessionStorage.clear();

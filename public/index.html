@@ -20,7 +20,9 @@
     <a href="#" id="linkHome">Home</a>
     <a href="#" id="linkLogin" class="hide-after-login">Login</a>
     <a href="#" id="linkRegister" class="hide-after-login">Register</a>
-   <a href="#" id="linkLogout" class="show-after-login">Logout</a>
+	<a href="#" id="linkCreateCarSale" class="show-sell-car-after-login">Sell your car</a>
+    <a href="#" id="linkLogout" class="show-after-login">Logout</a>	
+   
 </header>
 
 <main>
@@ -34,7 +36,7 @@
 
     <section id="viewHome">
         <h1>Simple Car marketplace App where you can buy or sell used cars</h1>
-		Please login, register, buy or sell car (invoke a smart contract) or logout.
+		Please login or register in order to buy or sell car (invoke a smart contract).
         <h1>Cars available for Sale from sellers</h1>
         <ul id="votingResults">Loading ...</ul>
     </section>
@@ -58,6 +60,19 @@
         <input type="button" id="buttonRegister" value="Register"/>
     </section>
 	
+	<section id="viewCreateCarSale">
+        <h1>List your car for sale</h1>
+        <div>VIN: <input type="text" id="carSaleVINId"></div>
+		<div>Make: <select name="carSaleMake" id="carSaleMakeId">
+							<option id="BMW">BMW</option>
+							<option id="Audi">Audi</option>
+							<option id="Mercedez-Benz">Mercedez-Benz</option>
+						   </select></div>
+		<div>Model: <input type="text" id="carSaleModelId"></div>
+		<div>Year: <input type="number" id="carSaleYearId"></div>
+		<div>Price: <input type="number" id="carSalePriceId"></div>	        
+        <input type="button" id="buttonCreateCarSale" value="Create car Sale"/>
+    </section>
 
 </main>
 
