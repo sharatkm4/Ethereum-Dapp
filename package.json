@@ -2,13 +2,13 @@
   "name": "Ethereum-Dapp",
   "version": "1.0.0",
   "description": "Ethereum based DApp project as part of Kingsland University course.",
-  "main": "truffle-config.js",
+  "main": "src/car-marketplace-server.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "test": "truffle test",
-	"test:coverage": "solidity-coverage"
+    "test:coverage": "solidity-coverage"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,11 @@
   "homepage": "https://github.com/sharatkm4/Ethereum-Dapp#readme",
   "devDependencies": {
     "solidity-coverage": "^0.6.2"
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "http-status-codes": "^1.4.0"
   }
 }

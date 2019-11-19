@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car marketplace App with Metamask</title>
+    <link rel="stylesheet" type="text/css" href="site.css"/>
+    <script src="lib/jquery-3.1.1.min.js"></script>
+    <script src="lib/ethers.min.js"></script>
+    <script src="lib/cryptojs-hmac-sha256.js"></script>
+    <script src="car-marketplace-client.js"></script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+
+<header id="menu">
+    <a href="#" id="linkHome">Home</a>
+    <a href="#" id="linkLogin" class="hide-after-login">Login</a>
+    <a href="#" id="linkRegister" class="hide-after-login">Register</a>
+   <a href="#" id="linkLogout" class="show-after-login">Logout</a>
+</header>
+
+<main>
+    <section id="ajaxLoadingBox">Loading ...</section>
+
+    <section id="progressBox">...</section>
+
+    <section id="infoBox"><header>x</header><p>Info</p></section>
+
+    <section id="errorBox"><header>x</header><p>Error</p></section>
+
+    <section id="viewHome">
+        <h1>Simple Car marketplace App where you can buy or sell used cars</h1>
+		Please login, register, buy or sell car (invoke a smart contract) or logout.
+        <h1>Cars available for Sale from sellers</h1>
+        <ul id="votingResults">Loading ...</ul>
+    </section>
+
+    <section id="viewLogin">
+        <h1>Login</h1>
+        <div>Username: <input type="text" id="usernameLogin"></div>
+        <div>Password: <input type="password" id="passwordLogin"></div>
+        <input type="button" id="buttonLogin" value="Login"/>
+    </section>
+
+    <section id="viewRegister">
+        <h1>Register</h1>
+        <div>Username: <input type="text" id="usernameRegister"></div>
+        <div>Password: <input type="password" id="passwordRegister"></div>
+		<div>Buyer/Seller: <select name="buyerSeller" id="buyerSellerId">
+							<option id="buyer">Buyer</option>
+							<option id="seller">Seller</option>
+						   </select>
+		</div>
+        <input type="button" id="buttonRegister" value="Register"/>
+    </section>
+	
+
+</main>
+
+<footer>Car Marketplace DApp with Metamask</footer>
+
+</body>
+</html>
