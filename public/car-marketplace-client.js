@@ -1,7 +1,7 @@
 $(document).ready(function () {
     const ethereumProvider = ethers.providers.getDefaultProvider('ropsten');
-    const votingContractAddress = "0xc1dcc9e09c708cf915d58b0309e267422b251657";
-    const votingContractABI = [
+    const carMarketplaceContractAddress = "0xc1dcc9e09c708cf915d58b0309e267422b251657";
+    const carMarketplaceContractABI = [
 	{
 		"constant": false,
 		"inputs": [
@@ -185,7 +185,7 @@ $(document).ready(function () {
 		"type": "function"
 	}
 ];
-    const votingContract = new ethers.Contract(votingContractAddress, votingContractABI, ethereumProvider);
+    const carMarketplaceContract = new ethers.Contract(carMarketplaceContractAddress, carMarketplaceContractABI, ethereumProvider);
 
     showView("viewHome");
 
@@ -194,20 +194,20 @@ $(document).ready(function () {
     });
 
     $('#linkLogin').click(function () {
-		/*if (window.ethereum) {
+		if (window.ethereum) {
 			window.ethereum.enable();
 		} else {
 			return showError("Please install Metamask in your browser to register, login, buy and sell cars.");			
-		}*/
+		}
         showView("viewLogin");
     });
 
     $('#linkRegister').click(function () {
-		/*if (window.ethereum) {
+		if (window.ethereum) {
 			window.ethereum.enable();
 		} else {
 			return showError("Please install Metamask in your browser to register, login, buy and sell cars.");			
-		}*/
+		}
 		/*web3.eth.getAccounts((err, accounts) => {
 			//if (!err && accounts.length > 0){
 			if (err || accounts.length == 0){
@@ -365,13 +365,13 @@ $(document).ready(function () {
     async function loadVotingResults() {
         try {
 			let candidates = [];
-			let candidatesCount = await votingContract.carCount();
+			let candidatesCount = await carMarketplaceContract.carCount();
 			//alert(candidatesCount);
 			let votingResultsUl = $('#votingResults').empty();
 			for (var i = 1; i <= candidatesCount; i++) {
-				let car = await votingContract.carsMap(i);
+				let car = await carMarketplaceContract.carsMap(i);
 				if(!car.purchased) {
-					let li = $('<li>').html(`${car.make}`);
+					let li = $('<li>').html(`<b>Vehicle</b> ${i}: <b>Vin:</b> ${car.vin} <b>Make:</b> ${car.make} <b>Model:</b> ${car.model} <b>Year:</b> ${car.year} <b>Price:</b> ${car.price} `);
 					li.appendTo(votingResultsUl);
 				}
 			}			
@@ -403,7 +403,7 @@ $(document).ready(function () {
     }
 
     async function vote(candidateIndex, candidateName) {
-        try {
+        /*try {
 			let jsonWallet = sessionStorage['jsonWallet'];
 			let walletPassword = prompt("Enter your wallet password:");
 			
@@ -420,7 +420,7 @@ $(document).ready(function () {
 		}
 		finally {
 			hideProgressProgress();
-		}
+		}*/
     }
 	
 	function createCarSale() {
@@ -470,31 +470,35 @@ $(document).ready(function () {
 			return;
 		}
 		
-		//alert(carSaleVIN + ':' + carSaleMake + ':' + carSaleModel + ':' + carSaleYear + ':' + carSalePrice);
-				
-		/*try {
-			let wallet = ethers.Wallet.createRandom();			
-			let jsonWallet = await wallet.encrypt(walletPassword, {}, showProgressBox);			
-			let backendPassword = CryptoJS.HmacSHA256(username, walletPassword).toString();
-						
-			let result = await $.ajax({
-				type: 'POST',
-				url: `/register`,
-				data: JSON.stringify({username, password: backendPassword, jsonWallet, buyerSellerType}),
-				contentType: 'application/json'
-			});
-			
-			sessionStorage['username'] = username;
-			sessionStorage['jsonWallet'] = jsonWallet;
-			sessionStorage['buyerSellerType'] = buyerSellerType;
-			showView("viewHome");
-			showInfo(`User "${username}" registered successfully. Please save your mnemonic: <b>${wallet.mnemonic}</b>`);
+		console.log(carSaleVIN + ' : ' + carSaleMake + ' : ' + carSaleModel + ' : ' + carSaleYear + ' : ' + carSalePrice);
 
+		try {
+			// Make sure metamask is installed in the browser
+			if (typeof web3 === 'undefined'){
+				return showError("Please install Metamask to access the Ethereum Web3 API from your web browser");
+			}
+			
+			// Make sure metamask has been logged in and has a valid account
+			let account = web3.eth.accounts[0];
+			if(!account)
+				return showError("Please unlock Metamask in your browser to register, login, buy and sell cars.");
+			
+			console.log('metamask account: ', account);
+			
+			let carMarketplaceContract = web3.eth.contract(carMarketplaceContractABI).at(carMarketplaceContractAddress);
+			console.log('carMarketplaceContract: ', carMarketplaceContract);
+		
+			carMarketplaceContract.createCarForSale(carSaleVIN, carSaleMake, carSaleModel, carSaleYear, carSalePrice, function (err, txHash) {
+							if (err)
+								return showError("Smart contract call failed when creating your car sale: " + err);
+							showInfo(`Your car has been <b>successfully listed</b> for sale. Transaction hash: ${txHash}`);
+							showView("viewHome");
+						});
 		} catch(err) {
-			showError("Cannot register user. ", err);
+			showError("Cannot create car sale. Please try again later.", err);
 		} finally {
 			hideProgressProgress();
-		}*/
+		}
 	}
 
     function logout() {
