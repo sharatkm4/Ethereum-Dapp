@@ -392,13 +392,13 @@ $(document).ready(function () {
             $('.hide-after-login').show();
         }
 		const buyerSellerType = sessionStorage.buyerSellerType;
-		//alert(buyerSellerType);
+		console.log('buyerSellerType: ', buyerSellerType);
 		if(loggedIn && buyerSellerType === 'seller')			
 			$('.show-sell-car-after-login').show();
 		else 
 			$('.show-sell-car-after-login').hide();
         if (viewName === 'viewHome')
-            loadVotingResults();
+            loadCarResults();
     }
 
     // Attach AJAX "loading" event listener
@@ -511,17 +511,34 @@ $(document).ready(function () {
 		}
     }
 
-    async function loadVotingResults() {
+    async function loadCarResults() {
         try {			
 			let carCount = await carMarketplaceContract.carCount();
 			carCount = parseInt(carCount);
 			console.log('carCount: ', carCount);
 			let carResultsUl = $('#carResults').empty();
 			if(carCount > 0 ){
-				for (var i = 1; i <= carCount; i++) {
+				for (let i = 1; i <= carCount; i++) {
 					let car = await carMarketplaceContract.carsMap(i);
+					
 					if(!car.purchased) {
-						let li = $('<li>').html(`<b>Vehicle ${i}</b>: <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${car.make} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${car.model} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${car.year} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} <br/> <img src='https://ipfs.io/ipfs/${car.imageUrl}' alt='${car.make} ${car.model}' style='width:400px;height:200px;' > <br/>`);
+						let li = $('<li>').html(`<b>Vehicle ${i}</b>: <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${car.make} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${car.model} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${car.year} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/>  <img src='https://ipfs.io/ipfs/QmQxt6JEqzdmmcDu7yM3dBXM8Gs7DrXNxvUZ11agxx2Kja' alt='${car.make} ${car.model}' style='width:400px;height:200px;' > <br/><br/><br/>`);
+						li.appendTo(carResultsUl);
+					} else {
+						let li = $('<li>').html(`<b>Vehicle ${i}</b>:  <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${car.make} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${car.model} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${car.year} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/> <img src='https://ipfs.io/ipfs/${car.imageUrl}' alt='${car.make} ${car.model}' style='width:400px;height:200px;' > <br/>`);
+						
+						const buyerSellerType = sessionStorage.buyerSellerType;
+						//console.log('i: ', i);
+						let carId = i;
+						if(buyerSellerType === 'buyer') {				
+							let button = $(`<input type="button" value="BUY NOW !!">`);
+							button.click(function () {
+								console.log('About to buy car ID: ', carId);
+								buyCarFromSeller(carId)
+							});
+							li.append(button);
+							li.append('<br/><br/><br/>');		
+						}
 						li.appendTo(carResultsUl);
 					}
 				}
@@ -577,6 +594,10 @@ $(document).ready(function () {
 			hideProgressProgress();
 		}*/
     }
+	
+	function buyCarFromSeller(carId) {
+		alert('Buying a car: ' + carId);
+	}
 	
 	function createCarSale() {
 		
