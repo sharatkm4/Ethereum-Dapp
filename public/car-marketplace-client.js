@@ -334,7 +334,7 @@ $(document).ready(function () {
 	const IPFS = window.IpfsApi('localhost','5001');
 	const Buffer = IPFS.Buffer;
 	
-    const carMarketplaceContract = new ethers.Contract(carMarketplaceContractAddress, carMarketplaceContractABI, ethereumProvider);
+    const carMarketplaceContractEthers = new ethers.Contract(carMarketplaceContractAddress, carMarketplaceContractABI, ethereumProvider);
 
     showView("viewHome");
 
@@ -512,16 +512,26 @@ $(document).ready(function () {
     }
 
     async function loadCarResults() {
+		
+		/*var etherAmount = web3.fromWei(1900000);
+		console.log('etherAmount: ', etherAmount);
+		var weiAmount = web3.toWei(0.0000000000001,'ether');
+		console.log('weiAmount: ', weiAmount);*/
+			
+			
         try {			
-			let carCount = await carMarketplaceContract.carCount();
+			let carCount = await carMarketplaceContractEthers.carCount();
 			carCount = parseInt(carCount);
 			console.log('carCount: ', carCount);
 			let carResultsUl = $('#carResults').empty();
 			if(carCount > 0 ){
 				for (let i = 1; i <= carCount; i++) {
-					let car = await carMarketplaceContract.carsMap(i);
+					let car = await carMarketplaceContractEthers.carsMap(i);
 					
-					if(!car.purchased) {
+					let carPriceInEther = web3.fromWei(car.price);
+					console.log('carId:' + i + '  carPriceInEther: '+ carPriceInEther);
+					
+					if(car.purchased) {
 						let li = $('<li>').html(`<b>Vehicle ${i}</b>: <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${car.make} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${car.model} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${car.year} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/>  <img src='https://ipfs.io/ipfs/QmQxt6JEqzdmmcDu7yM3dBXM8Gs7DrXNxvUZ11agxx2Kja' alt='${car.make} ${car.model}' style='width:400px;height:200px;' > <br/><br/><br/>`);
 						li.appendTo(carResultsUl);
 					} else {
@@ -530,11 +540,11 @@ $(document).ready(function () {
 						const buyerSellerType = sessionStorage.buyerSellerType;
 						//console.log('i: ', i);
 						let carId = i;
+						let carPrice = car.price;
 						if(buyerSellerType === 'buyer') {				
 							let button = $(`<input type="button" value="BUY NOW !!">`);
-							button.click(function () {
-								console.log('About to buy car ID: ', carId);
-								buyCarFromSeller(carId)
+							button.click(function () {								
+								buyCarFromSeller(carId, carPrice)
 							});
 							li.append(button);
 							li.append('<br/><br/><br/>');		
@@ -548,6 +558,7 @@ $(document).ready(function () {
 				
 			}
 			
+					
 			
 			/*for (let index = 0; index < candidatesCount; index++) {
 				let candidate = await votingContract.getCandidate(index);
@@ -595,8 +606,55 @@ $(document).ready(function () {
 		}*/
     }
 	
-	function buyCarFromSeller(carId) {
-		alert('Buying a car: ' + carId);
+	function buyCarFromSeller(carId, carPrice) {	
+		
+		carId = parseInt(carId);
+		if(!(carId > 0)){
+			showError("Invalid carId.");
+			return;
+		}
+		
+		console.log('About to buy car from seller with ID: ' + carId + ' for price: ' + carPrice);
+		
+		try{
+			// Make sure metamask is installed in the browser
+			if (typeof web3 === 'undefined'){
+				return showError("Please install Metamask to access the Ethereum Web3 API from your web browser");
+			}
+			
+			// Make sure metamask has been logged in and has a valid account
+			let account = web3.eth.accounts[0];
+			if(!account)
+				return showError("Please unlock Metamask in your browser to register, login, buy and sell cars.");
+			
+			console.log('metamask account: ', account);
+			
+			let carMarketplaceContract = web3.eth.contract(carMarketplaceContractABI).at(carMarketplaceContractAddress);
+			console.log('carMarketplaceContract: ', carMarketplaceContract);
+			
+			//https://ethereum.stackexchange.com/questions/45398/call-a-payable-function-and-pay-ether-with-metamask
+			//var etherAmount = web3.toBigNumber($("#id_of_field_with_ether_value").val());
+			//var weiValue = web3.toWei(etherAmount,'ether');
+			//MyContract.deposit({from: web3.eth.accounts[0], gas: gasValue, value: weiValue}, function(err, res){ })
+			
+			var etherAmount = web3.fromWei(carPrice);
+			console.log('etherAmount: ', etherAmount);
+			var weiAmount = web3.toWei(etherAmount,'ether');
+			console.log('weiAmount: ', weiAmount);
+   
+			carMarketplaceContract.buyCarFromSeller(carId, {from: account, value: carPrice}, function (err, txHash) {
+				if (err)
+					return showError("Smart contract call failed when buying car from seller: " + err);
+				console.log(`Your car has been <b>successfully purchased</b> from seller. Transaction hash: ${txHash}`);
+				showInfo(`Your car has been <b>successfully purchased</b> from seller. Transaction hash: ${txHash}`);							
+			});
+			
+		} catch(err) {
+			showError("Error while trying to buy car from seller. Please try again later.", err);
+		} finally {
+			hideProgressProgress();
+		}	
+		
 	}
 	
 	function createCarSale() {
@@ -692,7 +750,7 @@ $(document).ready(function () {
 		
 			
 		} catch(err) {
-			showError("Cannot create car sale. Please try again later.", err);
+			showError("Error while creating car sale. Please try again later.", err);
 		} finally {
 			hideProgressProgress();
 		}
