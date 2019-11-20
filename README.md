@@ -1,7 +1,7 @@
 # Ethereum-DApp
 Ethereum based DApp project as part of Kingsland University course.
 
-A simple ethereum based DApp application which provides a decentralized marketplace for selling and buying used cars. 
+A simple ethereum based DApp application which provides a decentralized marketplace for buying and selling used cars. 
 
 If logged in as seller, user can create/list cars for sale. 
 If logged in as buyer, user can buy the car and transfer money to seller. 
