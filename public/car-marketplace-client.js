@@ -373,6 +373,11 @@ $(document).ready(function () {
 		showView("viewCreateCarSale");
 	});	
 
+	$('#linkPurchasedCars').click(function () {		
+		showView("viewPurchasedCars");
+		loadPurchasedCarResults();
+	});
+	
     $('#linkLogout').click(logout);
 
     $('#buttonLogin').click(login);
@@ -393,10 +398,17 @@ $(document).ready(function () {
         }
 		const buyerSellerType = sessionStorage.buyerSellerType;
 		console.log('buyerSellerType: ', buyerSellerType);
+		
 		if(loggedIn && buyerSellerType === 'seller')			
 			$('.show-sell-car-after-login').show();
 		else 
 			$('.show-sell-car-after-login').hide();
+		
+		if(loggedIn && buyerSellerType === 'buyer')			
+			$('.show-purchased-cars-after-login').show();
+		else 
+			$('.show-purchased-cars-after-login').hide();
+		
         if (viewName === 'viewHome')
             loadCarResults();
     }
@@ -531,6 +543,8 @@ $(document).ready(function () {
 					let carPriceInEther = web3.fromWei(car.price);
 					console.log('carId:' + i + '  carPriceInEther: '+ carPriceInEther);
 					
+					let carOwner = car.owner;
+					
 					if(car.purchased) {
 						let li = $('<li>').html(`<b>Vehicle ${i}</b>: <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${car.make} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${car.model} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${car.year} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/>  <img src='https://ipfs.io/ipfs/QmQxt6JEqzdmmcDu7yM3dBXM8Gs7DrXNxvUZ11agxx2Kja' alt='${car.make} ${car.model}' style='width:400px;height:200px;' > <br/><br/><br/>`);
 						li.appendTo(carResultsUl);
@@ -544,7 +558,7 @@ $(document).ready(function () {
 						if(buyerSellerType === 'buyer') {				
 							let button = $(`<input type="button" value="BUY NOW !!">`);
 							button.click(function () {								
-								buyCarFromSeller(carId, carPrice)
+								buyCarFromSeller(carId, carPrice, carOwner)
 							});
 							li.append(button);
 							li.append('<br/><br/><br/>');		
@@ -584,6 +598,46 @@ $(document).ready(function () {
 			showError(err);
 		}
     }
+	
+	async function loadPurchasedCarResults() {
+		
+        try {			
+		
+			// Make sure metamask has been logged in and has a valid account
+			let account = web3.eth.accounts[0];
+			if(!account)
+				return showError("Please unlock Metamask in your browser to register, login, buy and sell cars.");		
+			
+			
+			let carCount = await carMarketplaceContractEthers.carCount();
+			carCount = parseInt(carCount);
+			console.log('carCount: ', carCount);
+			let carResultsUl = $('#purchasedCarResults').empty();
+			if(carCount > 0 ){
+				let j=0;
+				for (let i = 1; i <= carCount; i++) {
+					let car = await carMarketplaceContractEthers.carsMap(i);					
+					//console.log('car.owner: ', car.owner);
+					if(car.purchased && (account === car.owner.toLowerCase()) ) {
+						j++;
+						let li = $('<li>').html(`<b>Vehicle ${j}</b>: <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${car.make} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${car.model} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${car.year} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/>  <img src='https://ipfs.io/ipfs/${car.imageUrl}' alt='${car.make} ${car.model}' style='width:400px;height:200px;' > <br/><br/><br/>`);
+						li.appendTo(carResultsUl);						
+					}
+				}
+				
+				if(j == 0){
+					let li = $('<li>').html("You haven't bought any cars yet !!");
+					li.appendTo(carResultsUl);
+				}
+			} else {
+				let li = $('<li>').html("You haven't bought any cars yet !!");
+				li.appendTo(carResultsUl);				
+			}
+		}
+		catch (err) {
+			showError(err);
+		}
+    }
 
     async function vote(candidateIndex, candidateName) {
         /*try {
@@ -606,7 +660,7 @@ $(document).ready(function () {
 		}*/
     }
 	
-	function buyCarFromSeller(carId, carPrice) {	
+	function buyCarFromSeller(carId, carPrice, carOwner) {	
 		
 		carId = parseInt(carId);
 		if(!(carId > 0)){
@@ -628,6 +682,10 @@ $(document).ready(function () {
 				return showError("Please unlock Metamask in your browser to register, login, buy and sell cars.");
 			
 			console.log('metamask account: ', account);
+			
+			if(account === carOwner.toLowerCase()){
+				return showError("Invalid buyer !! Are you the seller ?");	
+			}			
 			
 			let carMarketplaceContract = web3.eth.contract(carMarketplaceContractABI).at(carMarketplaceContractAddress);
 			console.log('carMarketplaceContract: ', carMarketplaceContract);

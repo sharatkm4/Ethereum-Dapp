@@ -22,6 +22,7 @@
     <a href="#" id="linkLogin" class="hide-after-login">Login</a>
     <a href="#" id="linkRegister" class="hide-after-login">Register</a>
 	<a href="#" id="linkCreateCarSale" class="show-sell-car-after-login">Sell your car</a>
+	<a href="#" id="linkPurchasedCars" class="show-purchased-cars-after-login">My purchased cars</a>
     <a href="#" id="linkLogout" class="show-after-login">Logout</a>	
    
 </header>
@@ -75,6 +76,11 @@
 		<div>Upload Car image:  <input type="file" id="carImageForUpload" /></div>
 		<br/>
         <input type="button" id="buttonCreateCarSale" value="Create car Sale"/>
+    </section>
+	
+	<section id="viewPurchasedCars">
+        <h1>List of cars you have purchased</h1>        
+        <ul id="purchasedCarResults">Loading ...</ul>
     </section>
 
 </main>
