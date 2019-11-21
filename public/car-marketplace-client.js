@@ -547,7 +547,7 @@ $(document).ready(function () {
 					let carOwner = car.owner;
 					
 					let carInfoJson = JSON.parse(await IPFS.cat('QmeBFDBmEyWf3kPK4JQGfNDivxptTmDNJCewg9Qj23u1hG'));					
-					//console.log('JSON Retrieved: ', carInfoJson);
+					console.log('CarInfoJson retrieved from IPFS: ', carInfoJson);
 					//console.log('Make Retrieved: ', carInfoJson.make);
 					//console.log('Model Retrieved: ', carInfoJson.model);
 					//console.log('Year Retrieved: ', carInfoJson.year);					
@@ -810,7 +810,14 @@ $(document).ready(function () {
 			return;
 		}
 		
-		console.log(carSaleVIN + ' : ' + carSaleMake + ' : ' + carSaleModel + ' : ' + carSaleYear + ' : ' + carSalePrice);
+		//Validate Type
+		let carType = $('#carTypeId option:selected').attr('id');
+		if(!carType || !carType.trim().length > 0 ){
+			showError("Invalid Type.");
+			return;
+		}
+		
+		console.log(carSaleVIN + ' : ' + carSaleMake + ' : ' + carSaleModel + ' : ' + carSaleYear + ' : ' + carSalePrice + ' : ' + carType);
 
 		try {
 			// Make sure metamask is installed in the browser
@@ -840,13 +847,16 @@ $(document).ready(function () {
 					if(err)
 						return showError('Error while adding files to IPFS: ' + err);
 					if(result) {
-						let ipfsHash = result[0].hash;
-						console.log('Image added to IPFS successfully with hash: ', ipfsHash);
+						let imageIpfsHash = result[0].hash;
+						console.log('Image added to IPFS successfully with hash: ', imageIpfsHash);
 						
 						let ipfsCarInfo = JSON.stringify({
+							vin: carSaleVIN,
 							make: carSaleMake,
 							model: carSaleModel,
-							year: carSaleYear
+							year: carSaleYear,
+							type: carType,
+							sellerName: sessionStorage.username
 						});
 						console.log('ipfsCarInfo: ', ipfsCarInfo);
 						
@@ -859,7 +869,7 @@ $(document).ready(function () {
 								let carInfoIpfsHash = result2[0].hash;
 								console.log('carInfo JSON added to IPFS successfully with hash: ', carInfoIpfsHash);
 								
-								carMarketplaceContract.createCarForSale(carSaleVIN, carSaleMake, carSaleModel, carSaleYear, carSalePrice, ipfsHash, function (err, txHash) {
+								carMarketplaceContract.createCarForSale(carSaleVIN, carSalePrice, carInfoIpfsHash, imageIpfsHash, function (err, txHash) {
 									if (err)
 										return showError("Smart contract call failed when creating your car sale: " + err);
 									console.log(`Your transaction for listing car for sale has been sent. Transaction hash: ${txHash}`);
@@ -871,7 +881,7 @@ $(document).ready(function () {
 									if (error)
 										return showError("CarOnSale Event failed : " + error);					
 									console.log('CarOnSale event: ', event); 
-									showInfo(`Your car has been <b>successfully listed</b> for sale.`);							
+									showInfo(`Your car has been <b>successfully listed</b> for sale.`);					
 								});
 							}
 					
