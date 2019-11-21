@@ -531,7 +531,8 @@ $(document).ready(function () {
 		console.log('weiAmount: ', weiAmount);*/
 			
 			
-        try {			
+        try {
+			let sellerSet = new Set();
 			let carCount = await carMarketplaceContractEthers.carCount();
 			carCount = parseInt(carCount);
 			console.log('carCount: ', carCount);
@@ -545,12 +546,24 @@ $(document).ready(function () {
 					
 					let carOwner = car.owner;
 					
+					let carInfoJson = JSON.parse(await IPFS.cat('QmeBFDBmEyWf3kPK4JQGfNDivxptTmDNJCewg9Qj23u1hG'));					
+					//console.log('JSON Retrieved: ', carInfoJson);
+					//console.log('Make Retrieved: ', carInfoJson.make);
+					//console.log('Model Retrieved: ', carInfoJson.model);
+					//console.log('Year Retrieved: ', carInfoJson.year);					
+					
+					sellerSet.add(carOwner);
+					
 					if(car.purchased) {
-						let li = $('<li>').html(`<b>Vehicle ${i}</b>: <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${car.make} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${car.model} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${car.year} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/>  <img src='https://ipfs.io/ipfs/QmQxt6JEqzdmmcDu7yM3dBXM8Gs7DrXNxvUZ11agxx2Kja' alt='${car.make} ${car.model}' style='width:400px;height:200px;' > <br/><br/><br/>`);
+						let li = $('<li>').html(`<b>Vehicle ${i}</b>: <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${car.make} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${carInfoJson.model} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${car.year} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/>  <img src='https://ipfs.io/ipfs/QmQxt6JEqzdmmcDu7yM3dBXM8Gs7DrXNxvUZ11agxx2Kja' alt='${car.make} ${car.model}' style='width:400px;height:200px;' > <br/><br/><br/>`);
 						li.appendTo(carResultsUl);
 					} else {
 						let li = $('<li>').html(`<b>Vehicle ${i}</b>:  <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${car.make} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${car.model} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${car.year} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/> <img src='https://ipfs.io/ipfs/${car.imageUrl}' alt='${car.make} ${car.model}' style='width:400px;height:200px;' > <br/>`);
 						
+						
+						//$('#listOfSellersId').append('<option value="' + carOwner + '">' + carOwner + '</option>');
+						
+								
 						const buyerSellerType = sessionStorage.buyerSellerType;
 						//console.log('i: ', i);
 						let carId = i;
@@ -566,6 +579,12 @@ $(document).ready(function () {
 						li.appendTo(carResultsUl);
 					}
 				}
+				
+				for(const seller of sellerSet) {
+				  console.log(seller);
+				  $('#listOfSellersId').append('<option value="' + seller + '">' + seller + '</option>');
+				}
+				
 			} else {
 				let li = $('<li>').html("No cars are available for sale right now. Please check back later.");
 				li.appendTo(carResultsUl);
@@ -819,12 +838,47 @@ $(document).ready(function () {
 
 				IPFS.files.add(fileBuffer, (err, result) => {
 					if(err)
-						return showError('Error while adding files to IPSF: ' + err);
+						return showError('Error while adding files to IPFS: ' + err);
 					if(result) {
 						let ipfsHash = result[0].hash;
 						console.log('Image added to IPFS successfully with hash: ', ipfsHash);
 						
-						carMarketplaceContract.createCarForSale(carSaleVIN, carSaleMake, carSaleModel, carSaleYear, carSalePrice, ipfsHash, function (err, txHash) {
+						let ipfsCarInfo = JSON.stringify({
+							make: carSaleMake,
+							model: carSaleModel,
+							year: carSaleYear
+						});
+						console.log('ipfsCarInfo: ', ipfsCarInfo);
+						
+						let ipfsCarInfoFileBuffer = Buffer.from(ipfsCarInfo);												
+						
+						IPFS.files.add(ipfsCarInfoFileBuffer, (err2, result2) => {
+							if(err2)
+								return showError('Error while adding carInfo JSON to IPFS: ' + err2);
+							if(result2) {
+								let carInfoIpfsHash = result2[0].hash;
+								console.log('carInfo JSON added to IPFS successfully with hash: ', carInfoIpfsHash);
+								
+								carMarketplaceContract.createCarForSale(carSaleVIN, carSaleMake, carSaleModel, carSaleYear, carSalePrice, ipfsHash, function (err, txHash) {
+									if (err)
+										return showError("Smart contract call failed when creating your car sale: " + err);
+									console.log(`Your transaction for listing car for sale has been sent. Transaction hash: ${txHash}`);
+									showInfo(`Your transaction for listing car for sale has been sent. Transaction hash: ${txHash}`);							
+								});
+								
+								//https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html#contract-events
+								carMarketplaceContract.CarOnSale(function(error, event) {
+									if (error)
+										return showError("CarOnSale Event failed : " + error);					
+									console.log('CarOnSale event: ', event); 
+									showInfo(`Your car has been <b>successfully listed</b> for sale.`);							
+								});
+							}
+					
+						});	
+						
+						
+						/*carMarketplaceContract.createCarForSale(carSaleVIN, carSaleMake, carSaleModel, carSaleYear, carSalePrice, ipfsHash, function (err, txHash) {
 							if (err)
 								return showError("Smart contract call failed when creating your car sale: " + err);
 							console.log(`Your transaction for buying car from seller has been sent. Transaction hash: ${txHash}`);
@@ -837,7 +891,7 @@ $(document).ready(function () {
 								return showError("CarOnSale Event failed : " + error);					
 							console.log('CarOnSale event: ', event); 
 							showInfo(`Your car has been <b>successfully listed</b> for sale.`);							
-						});
+						});*/
 					}
 				})	
 			};
