@@ -632,24 +632,53 @@ $(document).ready(function () {
 			let carMarketplaceContract = web3.eth.contract(carMarketplaceContractABI).at(carMarketplaceContractAddress);
 			console.log('carMarketplaceContract: ', carMarketplaceContract);
 			
-			//https://ethereum.stackexchange.com/questions/45398/call-a-payable-function-and-pay-ether-with-metamask
+			//https://ethereum.stackexchange.com/questions/45398/call-a-payable-function-and-pay-ether-with-metamask			
 			//var etherAmount = web3.toBigNumber($("#id_of_field_with_ether_value").val());
-			//var weiValue = web3.toWei(etherAmount,'ether');
-			//MyContract.deposit({from: web3.eth.accounts[0], gas: gasValue, value: weiValue}, function(err, res){ })
-			
-			var etherAmount = web3.fromWei(carPrice);
-			console.log('etherAmount: ', etherAmount);
-			var weiAmount = web3.toWei(etherAmount,'ether');
-			console.log('weiAmount: ', weiAmount);
-   
+			//var etherAmount = web3.fromWei(carPrice);
+			//console.log('etherAmount: ', etherAmount);
+			//var weiAmount = web3.toWei(etherAmount,'ether');
+			//console.log('weiAmount: ', weiAmount);
+   			
 			carMarketplaceContract.buyCarFromSeller(carId, {from: account, value: carPrice}, function (err, txHash) {
 				if (err)
-					return showError("Smart contract call failed when buying car from seller: " + err);
-				console.log(`Your car has been <b>successfully purchased</b> from seller. Transaction hash: ${txHash}`);
-				showInfo(`Your car has been <b>successfully purchased</b> from seller. Transaction hash: ${txHash}`);							
+					return showError("Smart contract call failed when buying car from seller: " + err);				
+				console.log(`Your transaction for purchasing the car from seller has been sent. Transaction hash: ${txHash}`);
+				showInfo(`Your transaction for purchasing the car from seller has been sent. Transaction hash: ${txHash}`);					
 			});
 			
+			//https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html#contract-events
+			carMarketplaceContract.CarPurchasedFromSeller(function(error, event) {
+				if (error)
+					return showError("CarPurchasedFromSeller Event failed : " + error);					
+				console.log('CarPurchasedFromSeller event: ', event); 
+				showInfo(`Your car has been <b>successfully purchased</b> from seller.`);							
+			});			
+			
+			//https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html#methods.myMethod.send
+			//Error: The MetaMask Web3 object does not support synchronous methods like eth_sendTransaction without a callback parameter			
+			/*carMarketplaceContract.methods.buyCarFromSeller(carId).send({from: account, value: carPrice})
+			.then(function(receipt){
+				// receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
+				console.log('receipt: ', receipt);
+			});*/
+			
+			//Error: The MetaMask Web3 object does not support synchronous methods like eth_sendTransaction without a callback parameter			
+			/*carMarketplaceContract.buyCarFromSeller(carId, {from: account, value: carPrice})
+			.on('transactionHash', function(hash){
+				showInfo(`Your transaction for purchasing the car from seller has been sent. Transaction hash: ${txHash}`);
+			})
+			.on('confirmation', function(confirmationNumber, receipt){
+				console.log('confirmation: ', confirmation);
+			})
+			.on('receipt', function(receipt){
+				console.log('receipt: ', receipt);
+			})
+			.on('error', function(error) {
+				console.log('error: ', error);
+			});*/
+			
 		} catch(err) {
+			console.log('Error while trying to buy car from seller. Please try again later. ', err);
 			showError("Error while trying to buy car from seller. Please try again later.", err);
 		} finally {
 			hideProgressProgress();
@@ -740,8 +769,16 @@ $(document).ready(function () {
 						carMarketplaceContract.createCarForSale(carSaleVIN, carSaleMake, carSaleModel, carSaleYear, carSalePrice, ipfsHash, function (err, txHash) {
 							if (err)
 								return showError("Smart contract call failed when creating your car sale: " + err);
-							console.log(`Your car has been <b>successfully listed</b> for sale. Transaction hash: ${txHash}`);
-							showInfo(`Your car has been <b>successfully listed</b> for sale. Transaction hash: ${txHash}`);							
+							console.log(`Your transaction for buying car from seller has been sent. Transaction hash: ${txHash}`);
+							showInfo(`Your transaction for buying car from seller has been sent. Transaction hash: ${txHash}`);							
+						});
+						
+						//https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html#contract-events
+						carMarketplaceContract.CarOnSale(function(error, event) {
+							if (error)
+								return showError("CarOnSale Event failed : " + error);					
+							console.log('CarOnSale event: ', event); 
+							showInfo(`Your car has been <b>successfully listed</b> for sale.`);							
 						});
 					}
 				})	
