@@ -1,7 +1,9 @@
 $(document).ready(function () {
     const ethereumProvider = ethers.providers.getDefaultProvider('ropsten');
     //const carMarketplaceContractAddress = "0xbaaa528c6ba3210ae4c4a7afe041f2545882719c";	//V1
+	//Car marketPlace contract address
 	const carMarketplaceContractAddress = "0xf9316ce5cd90f48d6ce95f4852bda45a22d0ee19"; 	//V2
+	//Car marketPlace contract ABI
     const carMarketplaceContractABI = [
 	{
 		"constant": true,
@@ -287,18 +289,24 @@ $(document).ready(function () {
 	}
 ];
 
+	//Initialize IPFS
 	const IPFS = window.IpfsApi('localhost','5001');
 	const Buffer = IPFS.Buffer;
-	
+
+	//Create car marketPlace contract using ethers library for reading data only. For writing data, contract is created using metamask library.
+	//Users can see list of cars available for sale even without logging in to the app nor have metamask installed !!
     const carMarketplaceContractEthers = new ethers.Contract(carMarketplaceContractAddress, carMarketplaceContractABI, ethereumProvider);
 
     showView("viewHome");
 
+	//Show home page
     $('#linkHome').click(function () {
         showView("viewHome");
     });
 
+	//Show login section
     $('#linkLogin').click(function () {
+		//Check if  metamask is installed or not
 		if (window.ethereum) {
 			window.ethereum.enable();
 		} else {
@@ -307,7 +315,9 @@ $(document).ready(function () {
         showView("viewLogin");
     });
 
+	//Show register section
     $('#linkRegister').click(function () {
+		//Check if  metamask is installed or not
 		if (window.ethereum) {
 			window.ethereum.enable();
 		} else {
@@ -316,39 +326,48 @@ $(document).ready(function () {
         showView("viewRegister");
     });
 	
+	//Show create car section
 	$('#linkCreateCarSale').click(function () {
 		showView("viewCreateCarSale");
 	});	
 
+	//Show  purchased cars section
 	$('#linkPurchasedCars').click(function () {		
 		showView("viewPurchasedCars");
 		loadPurchasedCarResults();
 	});
 	
+	//Logout
     $('#linkLogout').click(logout);
 	
-	//$('#linkSoldId').click(loadCarResults('SOLD'));
+	//Show car results when clicked on SOLD filter criteria
 	$("#linkSoldId").on("click", function (){		
 		loadCarResults('SOLD');
 	});
 	
+	//Show car results when seller filter criteria is changed
 	$("#listOfSellersId").on("change", function (){		
 		loadCarResults('SELLER');
 	});
 	
+	//Show all car results when reset is clicked
 	$("#buttonResetCriteria").on("click", function (){		
 		loadCarResults('ALL');
 	});
 
+	//Login button clicked
     $('#buttonLogin').click(login);
+	//Register button clicked
     $('#buttonRegister').click(register);
+	//Create car button clicked
 	$('#buttonCreateCarSale').click(createCarSale);	
 
+	//Show view based on logged in or without logged in
     function showView(viewName) {
         // Hide all views and show the selected view only
         $('main > section').hide();
         $('#' + viewName).show();
-        const loggedIn = sessionStorage.jsonWallet;
+        const loggedIn = sessionStorage.username;
         if (loggedIn) {
             $('.show-after-login').show();
             $('.hide-after-login').hide();
@@ -370,14 +389,13 @@ $(document).ready(function () {
 			$('.show-purchased-cars-after-login').hide();
 		
         if (viewName === 'viewHome'){
-			if(loggedIn){
-				//console.log('loggedInUsername: ', sessionStorage.username);
+			if(loggedIn){				
 				$('#welcomeId').empty();
-				$('#welcomeId').text("Welcome " + sessionStorage.username);
+				$('#welcomeId').html(`Welcome <b>${sessionStorage.username}</b>`);
 			} else {
 				$('#welcomeId').empty();
-				$('#welcomeId').text("Please login or register in order to buy or sell car (invoke a smart contract).");
-			}
+				$('#welcomeId').html(`Please <b>login or register</b> in order to buy or sell car (invoke a smart contract).`);
+			}			
 			loadSellers();
             loadCarResults('ALL');
 		}
@@ -418,6 +436,7 @@ $(document).ready(function () {
         $('#progressBox').hide(100);
     }
 	
+	//Retrieve list of registered sellers from server and populate dropdown for filter criteria
 	async function loadSellers() {
 		
 		$('#listOfSellersId').empty();
@@ -445,6 +464,7 @@ $(document).ready(function () {
 		}
     }
 
+	// Check if metamask is installed and account is unlocked. If not, error message is returned.
 	function checkMetamask(){
 		
 		// Make sure metamask is installed in the browser
@@ -460,8 +480,10 @@ $(document).ready(function () {
 			return "Please unlock Metamask in your browser to register, login, buy and sell cars.";		
 	}
 	
+	// Allows buyer or seller to login
     async function login() {
 		
+		// Metamask validation
 		let metamaskCheckMsg = checkMetamask();		
 		if(metamaskCheckMsg !== "SUCCESS") {		
 			return showError(metamaskCheckMsg);
@@ -473,13 +495,15 @@ $(document).ready(function () {
 			showError("Invalid Username.");
 			return;
 		}
-		let walletPassword = $('#passwordLogin').val();
-		if(!walletPassword || !walletPassword.trim().length > 0 ){
+		
+		// validate password
+		let loginPassword = $('#passwordLogin').val();
+		if(!loginPassword || !loginPassword.trim().length > 0 ){
 			showError("Invalid password.");
 			return;
 		}
-		
-		let backendPassword = CryptoJS.HmacSHA256(username, walletPassword).toString();
+		// hash the password with username and validate credentials on server side
+		let backendPassword = CryptoJS.HmacSHA256(username, loginPassword).toString();
 		try {
 			let result = await $.ajax({
 				type: 'POST',
@@ -488,8 +512,7 @@ $(document).ready(function () {
 				contentType: 'application/json'
 			});
 			
-			sessionStorage['username'] = username;
-			sessionStorage['jsonWallet'] = result.jsonWallet;
+			sessionStorage['username'] = username;			
 			sessionStorage['buyerSellerType'] = result.buyerSellerType;			
 			showView("viewHome");
 			showInfo(`User "${username}" logged in successfully.`);
@@ -499,8 +522,10 @@ $(document).ready(function () {
 		}
     }
 
+	//Allows users to register as buyer or seller
     async function register() {
 		
+		// Metamask validation
 		let metamaskCheckMsg = checkMetamask();		
 		if(metamaskCheckMsg !== "SUCCESS") {		
 			return showError(metamaskCheckMsg);
@@ -513,8 +538,9 @@ $(document).ready(function () {
 			return;
 		}
 		
-		let walletPassword = $('#passwordRegister').val();		
-		if(!walletPassword || !walletPassword.trim().length > 0 ){
+		// validate password
+		let registerPassword = $('#passwordRegister').val();		
+		if(!registerPassword || !registerPassword.trim().length > 0 ){
 			showError("Invalid password.");
 			return;
 		}
@@ -522,22 +548,20 @@ $(document).ready(function () {
 		let buyerSellerType = $('#buyerSellerId option:selected').attr('id');		
 		
 		try {
-			let wallet = ethers.Wallet.createRandom();			
-			let jsonWallet = await wallet.encrypt(walletPassword, {}, showProgressBox);			
-			let backendPassword = CryptoJS.HmacSHA256(username, walletPassword).toString();
+			// hash the password with username and store it in back end
+			let backendPassword = CryptoJS.HmacSHA256(username, registerPassword).toString();
 						
 			let result = await $.ajax({
 				type: 'POST',
 				url: `/register`,
-				data: JSON.stringify({username, password: backendPassword, jsonWallet, buyerSellerType}),
+				data: JSON.stringify({username, password: backendPassword, buyerSellerType}),
 				contentType: 'application/json'
 			});
 			
-			sessionStorage['username'] = username;
-			sessionStorage['jsonWallet'] = jsonWallet;
+			sessionStorage['username'] = username;			
 			sessionStorage['buyerSellerType'] = buyerSellerType;
 			showView("viewHome");
-			showInfo(`User "${username}" registered successfully. Please save your mnemonic: <b>${wallet.mnemonic}</b>`);
+			showInfo(`User "${username}" registered successfully.`);
 
 		} catch(err) {
 			showError("Cannot register user. ", err);
@@ -546,6 +570,7 @@ $(document).ready(function () {
 		}
     }
 
+	// Load cars which were listed by all the sellers
     async function loadCarResults(filterCriteria) {
 		console.log('filterCriteria: ', filterCriteria);
 		
@@ -555,6 +580,8 @@ $(document).ready(function () {
 		console.log('weiAmount: ', weiAmount);*/
 		
         try {
+			
+			//Filter based on the seller option selected from filter criteria
 			let selectedSellerName;
 			if(filterCriteria === 'SELLER'){
 				selectedSellerName = $('#listOfSellersId option:selected').attr('id');
@@ -562,13 +589,17 @@ $(document).ready(function () {
 					filterCriteria = 'ALL';
 			}
 		
+			//Get car count from contract
 			let carCount = await carMarketplaceContractEthers.carCount();
 			carCount = parseInt(carCount);
 			console.log('carCount: ', carCount);
+			//Display carcount on UI
 			$('#totalCountId').empty();
 			$('#totalCountId').html(`<br/><b> Total count: ${carCount} </b>`);				
 			let carResultsUl = $('#carResults').empty();
+			
 			if(carCount > 0 ){
+				//Loop through each cars
 				for (let i = 1; i <= carCount; i++) {
 					let car = await carMarketplaceContractEthers.carsMap(i);
 					
@@ -577,9 +608,19 @@ $(document).ready(function () {
 					
 					let carOwner = car.owner;
 					
+					//Fetch JSON (sample json below) which was stored in IPFS
+					//{ 
+					//  "vin": "V2",
+					//	"make": "Audi",
+					//	"model": "Q5",
+					//	"year": 2019,
+					//	"type": "suv",
+					//	"sellerName": "seller1"
+					//}
 					let carInfoJson = JSON.parse(await IPFS.cat(car.carInfoIpfsHash));				
 					console.log('CarInfoJson retrieved from IPFS: ', carInfoJson);
 
+					//Handle filter criteria (by Sold or Seller types)
 					if(filterCriteria === 'SOLD'){
 						if(!car.purchased)
 							continue;
@@ -590,8 +631,10 @@ $(document).ready(function () {
 							continue;
 					}
 					
+					//If car is sold, just display the details
 					if(car.purchased) {
-						let li = $('<li>').html(`<b>Vehicle ${i}</b>: from ${carInfoJson.sellerName} <br/> ` +
+						let li = $('<li>').html(`<b>Vehicle ${i}</b>: <br/> ` +
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Seller:</b> ${carInfoJson.sellerName} <br/> ` +
 						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> ` + 
 						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${carInfoJson.make} <br/> ` + 
 						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${carInfoJson.model} <br/> ` + 
@@ -600,6 +643,7 @@ $(document).ready(function () {
 						`<img src='https://ipfs.io/ipfs/QmQxt6JEqzdmmcDu7yM3dBXM8Gs7DrXNxvUZ11agxx2Kja' alt='${carInfoJson.make} ${carInfoJson.model}' style='width:400px;height:200px;' > <br/><br/><br/><hr>`);
 						li.appendTo(carResultsUl);
 					} else {
+						//if car is not sold yet, provide BUY option only if the user is logged in as "BUYER"
 						let li = $('<li>').html(`<b>Vehicle ${i}</b>: <br/> ` + 
 						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Seller:</b> ${carInfoJson.sellerName} <br/> ` + 
 						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> ` + 
@@ -609,7 +653,7 @@ $(document).ready(function () {
 						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/> ` + 
 						`<img src='https://ipfs.io/ipfs/${car.imageIpfsHash}' alt='${carInfoJson.make} ${carInfoJson.model}' style='width:400px;height:200px;' > <br/>`);
 						
-						
+						//Display "BUY" button only if the user is logged in as "BUYER"
 						const buyerSellerType = sessionStorage.buyerSellerType;
 						//console.log('i: ', i);
 						let carId = i;
@@ -629,52 +673,34 @@ $(document).ready(function () {
 				}				
 			} else {
 				let li = $('<li>').html("No cars are available for sale right now. Please check back later.");
-				li.appendTo(carResultsUl);
-				
+				li.appendTo(carResultsUl);				
 			}
-			
-					
-			
-			/*for (let index = 0; index < candidatesCount; index++) {
-				let candidate = await votingContract.getCandidate(index);
-				let votes = await votingContract.getVotes(index);
-				candidates.push({candidate, votes});
-			}
-			
-			let votingResultsUl = $('#votingResults').empty();
-			for (let index = 0; index < candidatesCount; index++) {
-				let candidate = candidates[index];
-				let li = $('<li>').html(`${candidate.candidate} -> ${candidate.votes} votes`);
-				if (sessionStorage['username']) {
-					let button = $(`<input type="button" value="vote">`);
-					button.click(function () {
-						vote(index, candidate.candidate)
-					});
-					li.append(button);
-				}
-				li.appendTo(votingResultsUl);
-			}*/
 		}
 		catch (err) {
 			showError(err);
 		}
     }
 	
+	// Display all the purchased cars for logged in "BUYER"
 	async function loadPurchasedCarResults() {
 		
         try {			
 		
 			// Make sure metamask has been logged in and has a valid account
-			let account = web3.eth.accounts[0];
-			if(!account)
-				return showError("Please unlock Metamask in your browser to register, login, buy and sell cars.");		
+			let metamaskCheckMsg = checkMetamask();		
+			if(metamaskCheckMsg !== "SUCCESS") {		
+				return showError(metamaskCheckMsg);
+			}
+			let account = web3.eth.accounts[0];					
 			
-			
+			// Get car count from contract
 			let carCount = await carMarketplaceContractEthers.carCount();
 			carCount = parseInt(carCount);
 			console.log('carCount: ', carCount);
 			let carResultsUl = $('#purchasedCarResults').empty();
 			if(carCount > 0 ){
+				//Loop through all the cars
+				//If the car is purchased and carowner matches with metamask account, display car details.
 				let j=0;
 				for (let i = 1; i <= carCount; i++) {
 					let car = await carMarketplaceContractEthers.carsMap(i);					
@@ -708,29 +734,14 @@ $(document).ready(function () {
 		}
     }
 
-    async function vote(candidateIndex, candidateName) {
-        /*try {
-			let jsonWallet = sessionStorage['jsonWallet'];
-			let walletPassword = prompt("Enter your wallet password:");
-			
-			let wallet = await ethers.Wallet.fromEncryptedWallet(jsonWallet, walletPassword, showProgressBox);
-			let privateKey = wallet.privateKey;
-			const votingContract = new ethers.Contract(votingContractAddress, votingContractABI, new ethers.Wallet(privateKey, ethereumProvider));
-			let votingResult = await votingContract.vote(candidateIndex);
-			let tranHash = votingResult.hash;
-			showInfo(`Voted successfully for: ${candidateName}. ` + 
-				`See the transaction: <a href="https://ropsten.etherscan.io/tx/${tranHash}" target="_blank">${tranHash}</a>`);
-		}
-		catch (err) {
-			showError(err);
-		}
-		finally {
-			hideProgressProgress();
-		}*/
-    }
-	
+	//Buy the car from Seller by invoking smart contract
+	//Input:
+	//	carId - ID of the car
+	// 	carPrice - carPrice set by the seller
+	// 	carOwner - seller ethereum address
 	function buyCarFromSeller(carId, carPrice, carOwner) {	
 		
+		//validate carId
 		carId = parseInt(carId);
 		if(!(carId > 0)){
 			showError("Invalid carId.");
@@ -740,6 +751,7 @@ $(document).ready(function () {
 		console.log('About to buy car from seller with ID: ' + carId + ' for price: ' + carPrice);
 		
 		try{
+			//validate metamask 
 			let metamaskCheckMsg = checkMetamask();		
 			if(metamaskCheckMsg !== "SUCCESS") {		
 				return showError(metamaskCheckMsg);
@@ -748,6 +760,7 @@ $(document).ready(function () {
 			
 			console.log('metamask account: ', account);
 			
+			//If seller is the buyer, return error !!
 			if(account === carOwner.toLowerCase()){
 				return showError("Invalid buyer !! Are you the seller ?");	
 			}
@@ -762,6 +775,7 @@ $(document).ready(function () {
 			//var weiAmount = web3.toWei(etherAmount,'ether');
 			//console.log('weiAmount: ', weiAmount);
    			
+			//Invoke smart contract to buy the car from seller by sending carId and carPrice
 			carMarketplaceContract.buyCarFromSeller(carId, {from: account, value: carPrice}, function (err, txHash) {
 				if (err)
 					return showError("Smart contract call failed when buying car from seller: " + err);				
@@ -769,6 +783,7 @@ $(document).ready(function () {
 				showInfo(`Your transaction for purchasing the car from seller has been sent. Please wait for confirmation. Transaction hash: ${txHash}`);					
 			});
 			
+			//Listen for CarPurchasedFromSeller event from smart contract.
 			//https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html#contract-events
 			carMarketplaceContract.CarPurchasedFromSeller(function(error, event) {
 				if (error)
@@ -810,6 +825,7 @@ $(document).ready(function () {
 		
 	}
 	
+	//Create or List car for sale. This option is available only for registered sellers
 	function createCarSale() {
 		
 		//Validate VIN
@@ -874,6 +890,7 @@ $(document).ready(function () {
 		console.log(carSaleVIN + ' : ' + carSaleMake + ' : ' + carSaleModel + ' : ' + carSaleYear + ' : ' + carSalePrice + ' : ' + carType);
 
 		try {
+			//validate metamask
 			let metamaskCheckMsg = checkMetamask();		
 			if(metamaskCheckMsg !== "SUCCESS") {		
 				return showError(metamaskCheckMsg);
@@ -882,17 +899,21 @@ $(document).ready(function () {
 			
 			console.log('metamask account: ', account);
 			
+			//create car market place contract using metmask web3 library
 			let carMarketplaceContract = web3.eth.contract(carMarketplaceContractABI).at(carMarketplaceContractAddress);
 			console.log('carMarketplaceContract: ', carMarketplaceContract);
 			
+			//validate image
 			if($('#carImageForUpload')[0].files.length === 0) {
 				return showError("Please select a file to upload");
 			}
 			
+			//Load the image and store it in IPFS
 			let fileReader = new FileReader();
 			fileReader.onload = function () {			
 				let fileBuffer = Buffer.from(fileReader.result);			
 
+				//Add image to IPFS
 				IPFS.files.add(fileBuffer, (err, result) => {
 					if(err)
 						return showError('Error while adding files to IPFS: ' + err);
@@ -900,6 +921,7 @@ $(document).ready(function () {
 						let imageIpfsHash = result[0].hash;
 						console.log('Image added to IPFS successfully with hash: ', imageIpfsHash);
 						
+						//After image is stored, below car related JSON data is stored in IPFS
 						let ipfsCarInfo = JSON.stringify({
 							vin: carSaleVIN,
 							make: carSaleMake,
@@ -912,6 +934,7 @@ $(document).ready(function () {
 						
 						let ipfsCarInfoFileBuffer = Buffer.from(ipfsCarInfo);												
 						
+						//Add JSON data to IPFS
 						IPFS.files.add(ipfsCarInfoFileBuffer, (err2, result2) => {
 							if(err2)
 								return showError('Error while adding carInfo JSON to IPFS: ' + err2);
@@ -919,20 +942,23 @@ $(document).ready(function () {
 								let carInfoIpfsHash = result2[0].hash;
 								console.log('carInfo JSON added to IPFS successfully with hash: ', carInfoIpfsHash);
 								
+								//Call smart contract method to create or list car for sale.
 								carMarketplaceContract.createCarForSale(carSaleVIN, carSalePrice, carInfoIpfsHash, imageIpfsHash, function (err, txHash) {
 									if (err)
 										return showError("Smart contract call failed when creating your car sale: " + err);
 									console.log(`Your transaction for listing car sale has been sent. Please wait for confirmation. Transaction hash: ${txHash}`);
-									showInfo(`Your transaction for listing car sale has been sent. Please wait for confirmation. Transaction hash: ${txHash}`);							
+									showInfo(`Your transaction for listing car sale has been sent. Please wait for confirmation. Transaction hash: ${txHash}`);
+									setTimeout(function () { showView("viewHome"); }, 5000);
 								});
 								
+								//Listen for CarOnSale event from smart contract.
 								//https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html#contract-events
 								carMarketplaceContract.CarOnSale(function(error, event) {
 									if (error)
 										return showError("CarOnSale Event failed : " + error);					
 									console.log('CarOnSale event: ', event); 
 									showInfo(`Your car has been <b>successfully listed</b> for sale.`);
-									setTimeout(function () { showView("viewHome"); }, 3000);
+									setTimeout(function () { showView("viewHome"); }, 5000);									
 								});
 							}					
 						});							
@@ -949,14 +975,18 @@ $(document).ready(function () {
 		}
 	}
 
+	//handle logout - clear all the session data and display home page
     function logout() {
         sessionStorage.clear();
 		showView("viewHome");
     }
 	
+	
+	// Detect metamask account change.
+	// This method is not used currently.
 	let metamaskAccountChange;
 	function checkMetamaskAccountChange() {
-		const loggedIn = sessionStorage.jsonWallet;
+		const loggedIn = sessionStorage.username;
 		if(loggedIn){
 			//alert(metamaskAccountChange + '   ' + web3.eth.accounts[0]);			
 			if ( (web3.eth.accounts[0] !== metamaskAccountChange) && (metamaskAccountChange !== 'undefined') ) {

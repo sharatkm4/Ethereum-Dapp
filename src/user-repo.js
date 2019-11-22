@@ -7,11 +7,11 @@ let userRepo = {
         return matchingUsers[0];
     },
 
-    addUser: function(username, password, jsonWallet, buyerSellerType, success, error) {
+    addUser: function(username, password, buyerSellerType, success, error) {
         let existingUser = this.users.filter(
             u => u.username === username)[0];
         if (!existingUser) {
-            let user = {username, password, jsonWallet, buyerSellerType};
+            let user = {username, password, buyerSellerType};
             this.users.push(user);
             success(user);
         }

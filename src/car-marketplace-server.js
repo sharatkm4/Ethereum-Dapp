@@ -12,7 +12,7 @@ const HttpStatus = require('http-status-codes');
 var cors = require('cors');
 app.use(cors());
 
-var axios = require('axios');
+//var axios = require('axios');
 
 // Enable static access to the "/public" folder
 app.use(express.static('../public'));
@@ -26,12 +26,12 @@ app.post('/login', (req, res) => {
     if (!user)
         return res.status(HttpStatus.NOT_FOUND).json(
             {errorMsg: "Invalid username / password"});
-    return res.json({jsonWallet: user.jsonWallet, buyerSellerType: user.buyerSellerType});
+    return res.json({buyerSellerType: user.buyerSellerType});
 });
 
 app.post('/register', (req, res) => {
     userRepo.addUser(
-        req.body.username, req.body.password, req.body.jsonWallet, req.body.buyerSellerType,
+        req.body.username, req.body.password, req.body.buyerSellerType,
         function success(user) {
             return res.json({"msg": "User successfully registered"});
         },
