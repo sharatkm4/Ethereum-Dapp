@@ -326,6 +326,15 @@ $(document).ready(function () {
 	});
 	
     $('#linkLogout').click(logout);
+	
+	//$('#linkSoldId').click(loadCarResults('SOLD'));
+	$("#linkSoldId").on("click", function (){		
+		loadCarResults('SOLD');
+	});
+	
+	$("#listOfSellersId").on("change", function (){		
+		loadCarResults('SELLER');
+	});
 
     $('#buttonLogin').click(login);
     $('#buttonRegister').click(register);
@@ -357,7 +366,7 @@ $(document).ready(function () {
 			$('.show-purchased-cars-after-login').hide();
 		
         if (viewName === 'viewHome')
-            loadCarResults();
+            loadCarResults('ALL');
     }
 
     // Attach AJAX "loading" event listener
@@ -470,7 +479,8 @@ $(document).ready(function () {
 		}
     }
 
-    async function loadCarResults() {
+    async function loadCarResults(filterCriteria) {
+		console.log('filterCriteria: ', filterCriteria);
 		
 		/*var etherAmount = web3.fromWei(1900000);
 		console.log('etherAmount: ', etherAmount);
@@ -487,18 +497,40 @@ $(document).ready(function () {
 			$('#listOfSellersId').empty();
 			$('#listOfSellersId').append('<option value="all">ALL</option>');
 			if(carCount > 0 ){
+				/*for (let i = 1; i <= carCount; i++) {
+					let car = await carMarketplaceContractEthers.carsMap(i);
+					sellerNameSet.add(carInfoJson.sellerName);
+					
+				}
+				
+				for(const seller of sellerNameSet) {
+				  console.log(seller);
+				  $('#listOfSellersId').append('<option value="' + seller + '">' + seller + '</option>');
+				}*/
+				
 				for (let i = 1; i <= carCount; i++) {
 					let car = await carMarketplaceContractEthers.carsMap(i);
 					
-					let carPriceInEther = web3.fromWei(car.price);
-					console.log('carId:' + i + '  carPriceInEther: '+ carPriceInEther);
+					//let carPriceInEther = web3.fromWei(car.price);
+					//console.log('carId:' + i + '  carPriceInEther: '+ carPriceInEther);
 					
 					let carOwner = car.owner;
 					
 					let carInfoJson = JSON.parse(await IPFS.cat(car.carInfoIpfsHash));				
-					console.log('CarInfoJson retrieved from IPFS: ', carInfoJson);								
-					
+					console.log('CarInfoJson retrieved from IPFS: ', carInfoJson);
+
 					sellerNameSet.add(carInfoJson.sellerName);
+					
+					if(filterCriteria === 'SOLD'){
+						if(!car.purchased)
+							continue;
+					} else if(filterCriteria === 'SELLER'){
+						let selectedSellerName = $('#listOfSellersId option:selected').attr('id');
+						console.log('selectedSellerName: ', selectedSellerName);
+						console.log('carInfoJson.sellerName: ', carInfoJson.sellerName);
+						if(!(carInfoJson.sellerName === selectedSellerName))
+							continue;
+					}
 					
 					if(car.purchased) {
 						let li = $('<li>').html(`<b>Vehicle ${i}</b>: from ${carInfoJson.sellerName} <br/> ` +
