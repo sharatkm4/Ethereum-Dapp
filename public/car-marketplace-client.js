@@ -369,9 +369,18 @@ $(document).ready(function () {
 		else 
 			$('.show-purchased-cars-after-login').hide();
 		
-        if (viewName === 'viewHome')
+        if (viewName === 'viewHome'){
+			if(loggedIn){
+				//console.log('loggedInUsername: ', sessionStorage.username);
+				$('#welcomeId').empty();
+				$('#welcomeId').text("Welcome " + sessionStorage.username);
+			} else {
+				$('#welcomeId').empty();
+				$('#welcomeId').text("Please login or register in order to buy or sell car (invoke a smart contract).");
+			}
 			loadSellers();
             loadCarResults('ALL');
+		}
     }
 
     // Attach AJAX "loading" event listener

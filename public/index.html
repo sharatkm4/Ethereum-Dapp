@@ -38,7 +38,7 @@
 
     <section id="viewHome">
         <h1>Simple Car marketplace App where you can buy or sell used cars</h1>
-		Please login or register in order to buy or sell car (invoke a smart contract).
+		<div id="welcomeId">Please login or register in order to buy or sell car (invoke a smart contract).</div>
         <h1>Cars available for Sale from sellers</h1>
 		
 		<div style="border-style: ridge;">
@@ -47,8 +47,10 @@
 				<b>List of Sellers:</b>&nbsp;&nbsp;<select name="listOfSellers" id="listOfSellersId">
 													<option id="all">ALL</option>
 												   </select>
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b><a href="#" id="linkSoldId">SOLD</a></b>
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="buttonResetCriteria" value="Reset"/></div>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<b><a href="#" id="linkSoldId">SOLD</a></b>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input type="button" id="buttonResetCriteria" value="Reset"/></div>
 			
 		</div>	
         <ul style="border-style: ridge;" id="carResults">Loading ...</ul>
