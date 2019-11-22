@@ -761,8 +761,8 @@ $(document).ready(function () {
 			carMarketplaceContract.buyCarFromSeller(carId, {from: account, value: carPrice}, function (err, txHash) {
 				if (err)
 					return showError("Smart contract call failed when buying car from seller: " + err);				
-				console.log(`Your transaction for purchasing the car from seller has been sent. Transaction hash: ${txHash}`);
-				showInfo(`Your transaction for purchasing the car from seller has been sent. Transaction hash: ${txHash}`);					
+				console.log(`Your transaction for purchasing the car from seller has been sent. Please wait for confirmation. Transaction hash: ${txHash}`);
+				showInfo(`Your transaction for purchasing the car from seller has been sent. Please wait for confirmation. Transaction hash: ${txHash}`);					
 			});
 			
 			//https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html#contract-events
@@ -770,7 +770,8 @@ $(document).ready(function () {
 				if (error)
 					return showError("CarPurchasedFromSeller Event failed : " + error);					
 				console.log('CarPurchasedFromSeller event: ', event); 
-				showInfo(`Your car has been <b>successfully purchased</b> from seller.`);							
+				showInfo(`Your car has been <b>successfully purchased</b> from seller.`);
+				setTimeout(function () { showView("viewHome"); }, 3000);
 			});			
 			
 			//https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html#methods.myMethod.send
@@ -917,8 +918,8 @@ $(document).ready(function () {
 								carMarketplaceContract.createCarForSale(carSaleVIN, carSalePrice, carInfoIpfsHash, imageIpfsHash, function (err, txHash) {
 									if (err)
 										return showError("Smart contract call failed when creating your car sale: " + err);
-									console.log(`Your transaction for listing car for sale has been sent. Transaction hash: ${txHash}`);
-									showInfo(`Your transaction for listing car for sale has been sent. Transaction hash: ${txHash}`);							
+									console.log(`Your transaction for listing car sale has been sent. Please wait for confirmation. Transaction hash: ${txHash}`);
+									showInfo(`Your transaction for listing car sale has been sent. Please wait for confirmation. Transaction hash: ${txHash}`);							
 								});
 								
 								//https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html#contract-events
@@ -926,7 +927,8 @@ $(document).ready(function () {
 									if (error)
 										return showError("CarOnSale Event failed : " + error);					
 									console.log('CarOnSale event: ', event); 
-									showInfo(`Your car has been <b>successfully listed</b> for sale.`);					
+									showInfo(`Your car has been <b>successfully listed</b> for sale.`);
+									setTimeout(function () { showView("viewHome"); }, 3000);
 								});
 							}					
 						});							
