@@ -17,6 +17,18 @@ let userRepo = {
         }
         else
             error("Username unavailable: " + username);
+    },
+	
+	getAllSellers: function() {
+		let sellers = [];
+		for(i=0; i<this.users.length; i++){
+			let user = this.users[i];
+			if(user.buyerSellerType === 'seller'){
+				sellers.push(user.username);
+			}
+		}		
+		console.log('getAllSellers: ', sellers);
+        return sellers;
     }
 };
 

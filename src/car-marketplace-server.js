@@ -41,6 +41,14 @@ app.post('/register', (req, res) => {
     );
 });
 
+app.get('/getAllSellers', (req, res) => {
+    let sellers = userRepo.getAllSellers();
+    if (!sellers)
+        return res.status(HttpStatus.NOT_FOUND).json(
+            {errorMsg: "No Sellers found"});
+    return res.json({sellers: sellers});
+});
+
 var listeningPort = 8888;
 var listeningHost = "localhost";
 

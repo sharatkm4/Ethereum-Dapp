@@ -335,10 +335,14 @@ $(document).ready(function () {
 	$("#listOfSellersId").on("change", function (){		
 		loadCarResults('SELLER');
 	});
+	
+	$("#buttonResetCriteria").on("click", function (){		
+		loadCarResults('ALL');
+	});
 
     $('#buttonLogin').click(login);
     $('#buttonRegister').click(register);
-	$('#buttonCreateCarSale').click(createCarSale);
+	$('#buttonCreateCarSale').click(createCarSale);	
 
     function showView(viewName) {
         // Hide all views and show the selected view only
@@ -366,6 +370,7 @@ $(document).ready(function () {
 			$('.show-purchased-cars-after-login').hide();
 		
         if (viewName === 'viewHome')
+			loadSellers();
             loadCarResults('ALL');
     }
 
@@ -402,6 +407,33 @@ $(document).ready(function () {
 
     function hideProgressProgress() {
         $('#progressBox').hide(100);
+    }
+	
+	async function loadSellers() {
+		
+		$('#listOfSellersId').empty();
+		$('#listOfSellersId').append('<option id="all">ALL</option>');
+		
+		try {
+			let result = await $.ajax({
+				type: 'GET',
+				url: `/getAllSellers`,				
+				contentType: 'application/json'
+			});
+			console.log("sellers_result", result);
+			
+			if(result){
+				let sellers = result.sellers;
+				for(i=0; i<sellers.length; i++){
+					let seller = sellers[i];
+					$('#listOfSellersId').append('<option id="' + seller + '">' + seller + '</option>');
+				}
+			}			
+
+		} catch(err) {
+			console.log("Cannot load sellers. ", err);
+			showError("Cannot load sellers. ", err);
+		}
     }
 
     async function login() {
@@ -486,28 +518,20 @@ $(document).ready(function () {
 		console.log('etherAmount: ', etherAmount);
 		var weiAmount = web3.toWei(0.0000000000001,'ether');
 		console.log('weiAmount: ', weiAmount);*/
-			
-			
+		
         try {
-			let sellerNameSet = new Set();
+			let selectedSellerName;
+			if(filterCriteria === 'SELLER'){
+				selectedSellerName = $('#listOfSellersId option:selected').attr('id');
+				if(selectedSellerName === 'all')
+					filterCriteria = 'ALL';
+			}
+		
 			let carCount = await carMarketplaceContractEthers.carCount();
 			carCount = parseInt(carCount);
 			console.log('carCount: ', carCount);
 			let carResultsUl = $('#carResults').empty();
-			$('#listOfSellersId').empty();
-			$('#listOfSellersId').append('<option value="all">ALL</option>');
 			if(carCount > 0 ){
-				/*for (let i = 1; i <= carCount; i++) {
-					let car = await carMarketplaceContractEthers.carsMap(i);
-					sellerNameSet.add(carInfoJson.sellerName);
-					
-				}
-				
-				for(const seller of sellerNameSet) {
-				  console.log(seller);
-				  $('#listOfSellersId').append('<option value="' + seller + '">' + seller + '</option>');
-				}*/
-				
 				for (let i = 1; i <= carCount; i++) {
 					let car = await carMarketplaceContractEthers.carsMap(i);
 					
@@ -519,15 +543,12 @@ $(document).ready(function () {
 					let carInfoJson = JSON.parse(await IPFS.cat(car.carInfoIpfsHash));				
 					console.log('CarInfoJson retrieved from IPFS: ', carInfoJson);
 
-					sellerNameSet.add(carInfoJson.sellerName);
-					
 					if(filterCriteria === 'SOLD'){
 						if(!car.purchased)
 							continue;
-					} else if(filterCriteria === 'SELLER'){
-						let selectedSellerName = $('#listOfSellersId option:selected').attr('id');
-						console.log('selectedSellerName: ', selectedSellerName);
-						console.log('carInfoJson.sellerName: ', carInfoJson.sellerName);
+					} else if(filterCriteria === 'SELLER'){						
+						//console.log('selectedSellerName: ', selectedSellerName);
+						//console.log('carInfoJson.sellerName: ', carInfoJson.sellerName);
 						if(!(carInfoJson.sellerName === selectedSellerName))
 							continue;
 					}
@@ -566,13 +587,7 @@ $(document).ready(function () {
 						}
 						li.appendTo(carResultsUl);
 					}
-				}
-				
-				for(const seller of sellerNameSet) {
-				  console.log(seller);
-				  $('#listOfSellersId').append('<option value="' + seller + '">' + seller + '</option>');
-				}
-				
+				}				
 			} else {
 				let li = $('<li>').html("No cars are available for sale right now. Please check back later.");
 				li.appendTo(carResultsUl);
