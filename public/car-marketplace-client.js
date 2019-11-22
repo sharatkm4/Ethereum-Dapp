@@ -1,222 +1,8 @@
 $(document).ready(function () {
     const ethereumProvider = ethers.providers.getDefaultProvider('ropsten');
-    //const carMarketplaceContractAddress = "0xc1dcc9e09c708cf915d58b0309e267422b251657";
-	const carMarketplaceContractAddress = "0xbaaa528c6ba3210ae4c4a7afe041f2545882719c";	
+    //const carMarketplaceContractAddress = "0xbaaa528c6ba3210ae4c4a7afe041f2545882719c";	//V1
+	const carMarketplaceContractAddress = "0xf9316ce5cd90f48d6ce95f4852bda45a22d0ee19"; 	//V2
     const carMarketplaceContractABI = [
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_id",
-				"type": "uint256"
-			}
-		],
-		"name": "buyCarFromSeller",
-		"outputs": [],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_vin",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_make",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_model",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_year",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_price",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "_ipfsImageUrl",
-				"type": "string"
-			}
-		],
-		"name": "createCarForSale",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "carCount",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "vin",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "make",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "model",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "year",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "price",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "ipfsImageUrl",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "bool",
-				"name": "purchased",
-				"type": "bool"
-			}
-		],
-		"name": "CarOnSale",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "vin",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "make",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "model",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "year",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "price",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "ipfsImageUrl",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "bool",
-				"name": "purchased",
-				"type": "bool"
-			}
-		],
-		"name": "CarPurchasedFromSeller",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "sellerBalanceBefore",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amountToSendToSeller",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "sellerBalanceAfter",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "marketPlaceSmartContractBalance",
-				"type": "uint256"
-			}
-		],
-		"name": "sellerAndSmartContractBalanceAfterPurchase",
-		"type": "event"
-	},
 	{
 		"constant": true,
 		"inputs": [],
@@ -230,6 +16,51 @@ $(document).ready(function () {
 		],
 		"payable": false,
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_vin",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_price",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_carInfoIpfsHash",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_imageIpfsHash",
+				"type": "string"
+			}
+		],
+		"name": "createCarForSale",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "buyCarFromSeller",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -254,28 +85,18 @@ $(document).ready(function () {
 				"type": "string"
 			},
 			{
-				"internalType": "string",
-				"name": "make",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "model",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "year",
-				"type": "uint256"
-			},
-			{
 				"internalType": "uint256",
 				"name": "price",
 				"type": "uint256"
 			},
 			{
 				"internalType": "string",
-				"name": "imageUrl",
+				"name": "carInfoIpfsHash",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "imageIpfsHash",
 				"type": "string"
 			},
 			{
@@ -328,6 +149,141 @@ $(document).ready(function () {
 		"payable": false,
 		"stateMutability": "view",
 		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "carCount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "vin",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "carInfoIpfsHash",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "imageIpfsHash",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "purchased",
+				"type": "bool"
+			}
+		],
+		"name": "CarOnSale",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "vin",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "carInfoIpfsHash",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "imageIpfsHash",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "purchased",
+				"type": "bool"
+			}
+		],
+		"name": "CarPurchasedFromSeller",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "sellerBalanceBefore",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amountToSendToSeller",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "sellerBalanceAfter",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "marketPlaceSmartContractBalance",
+				"type": "uint256"
+			}
+		],
+		"name": "sellerAndSmartContractBalanceAfterPurchase",
+		"type": "event"
 	}
 ];
 
@@ -356,16 +312,7 @@ $(document).ready(function () {
 			window.ethereum.enable();
 		} else {
 			return showError("Please install Metamask in your browser to register, login, buy and sell cars.");			
-		}
-		/*web3.eth.getAccounts((err, accounts) => {
-			//if (!err && accounts.length > 0){
-			if (err || accounts.length == 0){
-				return showError("Please unlock Metamask in your browser to register, login, buy and sell cars.");
-			}
-		});*/	
-		/*if (typeof web3 === 'undefined')
-			return showError("Please install Metamask to access the Ethereum Web3 API from your web browser");
-		}*/
+		}		
         showView("viewRegister");
     });
 	
@@ -532,11 +479,13 @@ $(document).ready(function () {
 			
 			
         try {
-			let sellerSet = new Set();
+			let sellerNameSet = new Set();
 			let carCount = await carMarketplaceContractEthers.carCount();
 			carCount = parseInt(carCount);
 			console.log('carCount: ', carCount);
 			let carResultsUl = $('#carResults').empty();
+			$('#listOfSellersId').empty();
+			$('#listOfSellersId').append('<option value="all">ALL</option>');
 			if(carCount > 0 ){
 				for (let i = 1; i <= carCount; i++) {
 					let car = await carMarketplaceContractEthers.carsMap(i);
@@ -546,24 +495,31 @@ $(document).ready(function () {
 					
 					let carOwner = car.owner;
 					
-					let carInfoJson = JSON.parse(await IPFS.cat('QmeBFDBmEyWf3kPK4JQGfNDivxptTmDNJCewg9Qj23u1hG'));					
-					console.log('CarInfoJson retrieved from IPFS: ', carInfoJson);
-					//console.log('Make Retrieved: ', carInfoJson.make);
-					//console.log('Model Retrieved: ', carInfoJson.model);
-					//console.log('Year Retrieved: ', carInfoJson.year);					
+					let carInfoJson = JSON.parse(await IPFS.cat(car.carInfoIpfsHash));				
+					console.log('CarInfoJson retrieved from IPFS: ', carInfoJson);								
 					
-					sellerSet.add(carOwner);
+					sellerNameSet.add(carInfoJson.sellerName);
 					
 					if(car.purchased) {
-						let li = $('<li>').html(`<b>Vehicle ${i}</b>: <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${car.make} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${carInfoJson.model} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${car.year} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/>  <img src='https://ipfs.io/ipfs/QmQxt6JEqzdmmcDu7yM3dBXM8Gs7DrXNxvUZ11agxx2Kja' alt='${car.make} ${car.model}' style='width:400px;height:200px;' > <br/><br/><br/>`);
+						let li = $('<li>').html(`<b>Vehicle ${i}</b>: from ${carInfoJson.sellerName} <br/> ` +
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${carInfoJson.make} <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${carInfoJson.model} <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${carInfoJson.year} <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/>  ` + 
+						`<img src='https://ipfs.io/ipfs/QmQxt6JEqzdmmcDu7yM3dBXM8Gs7DrXNxvUZ11agxx2Kja' alt='${carInfoJson.make} ${carInfoJson.model}' style='width:400px;height:200px;' > <br/><br/><br/>`);
 						li.appendTo(carResultsUl);
 					} else {
-						let li = $('<li>').html(`<b>Vehicle ${i}</b>:  <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${car.make} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${car.model} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${car.year} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/> <img src='https://ipfs.io/ipfs/${car.imageUrl}' alt='${car.make} ${car.model}' style='width:400px;height:200px;' > <br/>`);
+						let li = $('<li>').html(`<b>Vehicle ${i}</b>: <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Seller:</b> ${carInfoJson.sellerName} <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${carInfoJson.make} <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${carInfoJson.model} <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${carInfoJson.year} <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/> ` + 
+						`<img src='https://ipfs.io/ipfs/${car.imageIpfsHash}' alt='${carInfoJson.make} ${carInfoJson.model}' style='width:400px;height:200px;' > <br/>`);
 						
 						
-						//$('#listOfSellersId').append('<option value="' + carOwner + '">' + carOwner + '</option>');
-						
-								
 						const buyerSellerType = sessionStorage.buyerSellerType;
 						//console.log('i: ', i);
 						let carId = i;
@@ -580,7 +536,7 @@ $(document).ready(function () {
 					}
 				}
 				
-				for(const seller of sellerSet) {
+				for(const seller of sellerNameSet) {
 				  console.log(seller);
 				  $('#listOfSellersId').append('<option value="' + seller + '">' + seller + '</option>');
 				}
@@ -639,7 +595,15 @@ $(document).ready(function () {
 					//console.log('car.owner: ', car.owner);
 					if(car.purchased && (account === car.owner.toLowerCase()) ) {
 						j++;
-						let li = $('<li>').html(`<b>Vehicle ${j}</b>: <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${car.make} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${car.model} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${car.year} <br/> &nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/>  <img src='https://ipfs.io/ipfs/${car.imageUrl}' alt='${car.make} ${car.model}' style='width:400px;height:200px;' > <br/><br/><br/>`);
+						let carInfoJson = JSON.parse(await IPFS.cat(car.carInfoIpfsHash));
+						
+						let li = $('<li>').html(`<b>Vehicle ${j}</b>: <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Vin:</b> ${car.vin} <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Make:</b> ${carInfoJson.make} <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${carInfoJson.model} <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${carInfoJson.year} <br/> ` + 
+						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/>  ` + 
+						`<img src='https://ipfs.io/ipfs/${car.imageIpfsHash}' alt='${carInfoJson.make} ${carInfoJson.model}' style='width:400px;height:200px;' > <br/><br/><br/>`);
 						li.appendTo(carResultsUl);						
 					}
 				}
@@ -704,8 +668,8 @@ $(document).ready(function () {
 			
 			if(account === carOwner.toLowerCase()){
 				return showError("Invalid buyer !! Are you the seller ?");	
-			}			
-			
+			}
+
 			let carMarketplaceContract = web3.eth.contract(carMarketplaceContractABI).at(carMarketplaceContractAddress);
 			console.log('carMarketplaceContract: ', carMarketplaceContract);
 			
@@ -883,25 +847,8 @@ $(document).ready(function () {
 									console.log('CarOnSale event: ', event); 
 									showInfo(`Your car has been <b>successfully listed</b> for sale.`);					
 								});
-							}
-					
-						});	
-						
-						
-						/*carMarketplaceContract.createCarForSale(carSaleVIN, carSaleMake, carSaleModel, carSaleYear, carSalePrice, ipfsHash, function (err, txHash) {
-							if (err)
-								return showError("Smart contract call failed when creating your car sale: " + err);
-							console.log(`Your transaction for buying car from seller has been sent. Transaction hash: ${txHash}`);
-							showInfo(`Your transaction for buying car from seller has been sent. Transaction hash: ${txHash}`);							
-						});
-						
-						//https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html#contract-events
-						carMarketplaceContract.CarOnSale(function(error, event) {
-							if (error)
-								return showError("CarOnSale Event failed : " + error);					
-							console.log('CarOnSale event: ', event); 
-							showInfo(`Your car has been <b>successfully listed</b> for sale.`);							
-						});*/
+							}					
+						});							
 					}
 				})	
 			};
