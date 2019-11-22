@@ -565,6 +565,8 @@ $(document).ready(function () {
 			let carCount = await carMarketplaceContractEthers.carCount();
 			carCount = parseInt(carCount);
 			console.log('carCount: ', carCount);
+			$('#totalCountId').empty();
+			$('#totalCountId').html(`<br/><b> Total count: ${carCount} </b>`);				
 			let carResultsUl = $('#carResults').empty();
 			if(carCount > 0 ){
 				for (let i = 1; i <= carCount; i++) {
@@ -595,7 +597,7 @@ $(document).ready(function () {
 						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${carInfoJson.model} <br/> ` + 
 						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${carInfoJson.year} <br/> ` + 
 						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/>  ` + 
-						`<img src='https://ipfs.io/ipfs/QmQxt6JEqzdmmcDu7yM3dBXM8Gs7DrXNxvUZ11agxx2Kja' alt='${carInfoJson.make} ${carInfoJson.model}' style='width:400px;height:200px;' > <br/><br/><br/>`);
+						`<img src='https://ipfs.io/ipfs/QmQxt6JEqzdmmcDu7yM3dBXM8Gs7DrXNxvUZ11agxx2Kja' alt='${carInfoJson.make} ${carInfoJson.model}' style='width:400px;height:200px;' > <br/><br/><br/><hr>`);
 						li.appendTo(carResultsUl);
 					} else {
 						let li = $('<li>').html(`<b>Vehicle ${i}</b>: <br/> ` + 
@@ -618,7 +620,9 @@ $(document).ready(function () {
 								buyCarFromSeller(carId, carPrice, carOwner)
 							});
 							li.append(button);
-							li.append('<br/><br/><br/>');		
+							li.append('<br/><br/><br/><hr>');		
+						} else {
+							li.append('<hr>');		
 						}
 						li.appendTo(carResultsUl);
 					}
