@@ -445,7 +445,27 @@ $(document).ready(function () {
 		}
     }
 
+	function checkMetamask(){
+		
+		// Make sure metamask is installed in the browser
+		if (typeof web3 === 'undefined'){
+			return "Please install Metamask to access the Ethereum Web3 API from your web browser";
+		}
+		
+		// Make sure metamask has been logged in and has a valid account
+		let account = web3.eth.accounts[0];
+		if(account)
+			return "SUCCESS";			
+		else 
+			return "Please unlock Metamask in your browser to register, login, buy and sell cars.";		
+	}
+	
     async function login() {
+		
+		let metamaskCheckMsg = checkMetamask();		
+		if(metamaskCheckMsg !== "SUCCESS") {		
+			return showError(metamaskCheckMsg);
+		}		
 		
 		// validate username
         let username = $('#usernameLogin').val();
@@ -480,6 +500,12 @@ $(document).ready(function () {
     }
 
     async function register() {
+		
+		let metamaskCheckMsg = checkMetamask();		
+		if(metamaskCheckMsg !== "SUCCESS") {		
+			return showError(metamaskCheckMsg);
+		}		
+		
 		// validate username
         let username = $('#usernameRegister').val();
 		if(!username || !username.trim().length > 0){
@@ -710,15 +736,11 @@ $(document).ready(function () {
 		console.log('About to buy car from seller with ID: ' + carId + ' for price: ' + carPrice);
 		
 		try{
-			// Make sure metamask is installed in the browser
-			if (typeof web3 === 'undefined'){
-				return showError("Please install Metamask to access the Ethereum Web3 API from your web browser");
+			let metamaskCheckMsg = checkMetamask();		
+			if(metamaskCheckMsg !== "SUCCESS") {		
+				return showError(metamaskCheckMsg);
 			}
-			
-			// Make sure metamask has been logged in and has a valid account
-			let account = web3.eth.accounts[0];
-			if(!account)
-				return showError("Please unlock Metamask in your browser to register, login, buy and sell cars.");
+			let account = web3.eth.accounts[0];			
 			
 			console.log('metamask account: ', account);
 			
@@ -837,18 +859,21 @@ $(document).ready(function () {
 			return;
 		}
 		
+		//Validate image		
+		let carImageForUpload = $('#carImageForUpload').val();		
+		if(!carImageForUpload || !carImageForUpload.trim().length > 0 ){
+			showError("Invalid Image.");
+			return;
+		}
+		
 		console.log(carSaleVIN + ' : ' + carSaleMake + ' : ' + carSaleModel + ' : ' + carSaleYear + ' : ' + carSalePrice + ' : ' + carType);
 
 		try {
-			// Make sure metamask is installed in the browser
-			if (typeof web3 === 'undefined'){
-				return showError("Please install Metamask to access the Ethereum Web3 API from your web browser");
+			let metamaskCheckMsg = checkMetamask();		
+			if(metamaskCheckMsg !== "SUCCESS") {		
+				return showError(metamaskCheckMsg);
 			}
-			
-			// Make sure metamask has been logged in and has a valid account
-			let account = web3.eth.accounts[0];
-			if(!account)
-				return showError("Please unlock Metamask in your browser to register, login, buy and sell cars.");
+			let account = web3.eth.accounts[0];			
 			
 			console.log('metamask account: ', account);
 			
@@ -922,6 +947,21 @@ $(document).ready(function () {
         sessionStorage.clear();
 		showView("viewHome");
     }
+	
+	let metamaskAccountChange;
+	function checkMetamaskAccountChange() {
+		const loggedIn = sessionStorage.jsonWallet;
+		if(loggedIn){
+			//alert(metamaskAccountChange + '   ' + web3.eth.accounts[0]);			
+			if ( (web3.eth.accounts[0] !== metamaskAccountChange) && (metamaskAccountChange !== 'undefined') ) {
+				metamaskAccountChange = web3.eth.accounts[0];
+				console.log('Account changed....');
+				location.reload();
+			}
+		}		
+	}
+	
+	//setInterval(checkMetamaskAccountChange, 5000);
 
 });
 
