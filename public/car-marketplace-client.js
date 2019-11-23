@@ -599,10 +599,12 @@ $(document).ready(function () {
 			let carResultsUl = $('#carResults').empty();
 			
 			if(carCount > 0 ){
+				let j =0;
 				//Loop through each cars
 				for (let i = 1; i <= carCount; i++) {
 					let car = await carMarketplaceContractEthers.carsMap(i);
 					
+					j++;
 					//let carPriceInEther = web3.fromWei(car.price);
 					//console.log('carId:' + i + '  carPriceInEther: '+ carPriceInEther);
 					
@@ -622,13 +624,17 @@ $(document).ready(function () {
 
 					//Handle filter criteria (by Sold or Seller types)
 					if(filterCriteria === 'SOLD'){
-						if(!car.purchased)
+						if(!car.purchased){
+							j--;
 							continue;
+						}
 					} else if(filterCriteria === 'SELLER'){						
 						//console.log('selectedSellerName: ', selectedSellerName);
 						//console.log('carInfoJson.sellerName: ', carInfoJson.sellerName);
-						if(!(carInfoJson.sellerName === selectedSellerName))
+						if(!(carInfoJson.sellerName === selectedSellerName)){
+							j--;
 							continue;
+						}
 					}
 					
 					//If car is sold, just display the details
@@ -670,7 +676,10 @@ $(document).ready(function () {
 						}
 						li.appendTo(carResultsUl);
 					}
-				}				
+				}
+				carCount = j;
+				$('#totalCountId').empty();
+				$('#totalCountId').html(`<br/><b> Total count: ${carCount} </b>`);
 			} else {
 				let li = $('<li>').html("No cars are available for sale right now. Please check back later.");
 				li.appendTo(carResultsUl);				
@@ -780,7 +789,8 @@ $(document).ready(function () {
 				if (err)
 					return showError("Smart contract call failed when buying car from seller: " + err);				
 				console.log(`Your transaction for purchasing the car from seller has been sent. Please wait for confirmation. Transaction hash: ${txHash}`);
-				showInfo(`Your transaction for purchasing the car from seller has been sent. Please wait for confirmation. Transaction hash: ${txHash}`);					
+				showInfo(`Your transaction for purchasing the car from seller has been sent. Please wait for confirmation. Transaction hash: ${txHash}`);
+				setTimeout(function () { showView("viewHome"); }, 5000);
 			});
 			
 			//Listen for CarPurchasedFromSeller event from smart contract.
@@ -790,7 +800,7 @@ $(document).ready(function () {
 					return showError("CarPurchasedFromSeller Event failed : " + error);					
 				console.log('CarPurchasedFromSeller event: ', event); 
 				showInfo(`Your car has been <b>successfully purchased</b> from seller.`);
-				setTimeout(function () { showView("viewHome"); }, 3000);
+				setTimeout(function () { showView("viewHome"); }, 5000);
 			});			
 			
 			//https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html#methods.myMethod.send
