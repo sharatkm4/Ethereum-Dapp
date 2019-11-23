@@ -93,14 +93,8 @@ contract("CarMarketPlace", async accounts => {
 				//Buyer1 does not have enough balance
 				tx = await carMarketPlace.buyCarFromSeller(1,{from: buyer1, value: web3.utils.toWei('101', 'Ether')});				
 				//assert.fail();
-			} catch (err) {
-				//console.log('TX========>: ', tx);
-				console.log('User Balance Error========>: ', err.reason);
-				/*try{
-					assert.fail();
-				} catch (err2) {
-					assert.ok(/revert/.test(err2.message));
-				}*/
+			} catch (err) {								
+				assert.equal(err.reason, "Buyer does not have enough balance to purchase the car !!");				
 			}			
 			
 		});
