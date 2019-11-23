@@ -1,4 +1,5 @@
 const CarMarketPlace = artifacts.require("CarMarketPlace");
+const BN = web3.utils.BN;
 
 contract("CarMarketPlace", async accounts => {
 	
@@ -9,12 +10,101 @@ contract("CarMarketPlace", async accounts => {
 	let buyer1 = accounts[4]; //Buyer 1
 	let buyer2 = accounts[5]; //Buyer 2
 	let buyer3 = accounts[6]; //Buyer 3
+	const MAX_UINT256 = new BN('2').pow(new BN('256')).sub(new BN('1'));
+	
 	
 	let carMarketPlace;
 	
 	beforeEach(async () => {
 		carMarketPlace = await CarMarketPlace.new();
 	});
+	
+	/*it('adds correctly with overflow', async function () {
+			//console.log(MAX_UINT256);		
+			assert.equal(await carMarketPlace.buyCarFromSeller2.call(2,3), 5);
+					
+			try {			
+				let tx = await carMarketPlace.buyCarFromSeller2.call(MAX_UINT256,1);
+				assert.fail();
+			} catch (err) {
+				assert.ok(/revert/.test(err.message));
+			}
+	});*/
+	
+	describe('Buying Car', async () => {
+		it("Should check for invalid ID when buying car", async () => {
+			let tx = await carMarketPlace.createCarForSale("V1",web3.utils.toWei('1', 'Ether'),"carInfo1_IpfsHash","image1_IpfsHash",{from: seller1});
+			
+			try {
+				//ID is zero (invalid)
+				tx = await carMarketPlace.buyCarFromSeller(0,{from: seller1});
+				assert.fail();
+			} catch (err) {
+				assert.ok(/revert/.test(err.message));
+			}
+			
+			try {
+				//ID is more than car count (invalid)
+				tx = await carMarketPlace.buyCarFromSeller(2,{from: seller1});
+				assert.fail();
+			} catch (err) {
+				assert.ok(/revert/.test(err.message));
+			}
+			
+			//Do we need this to test ?
+			tx = await carMarketPlace.buyCarFromSeller(1,{from: buyer1, value: web3.utils.toWei('1', 'Ether')});	
+			
+		});
+		
+		it("Should throw error when seller is trying to buy the car.", async () => {		
+			let tx = await carMarketPlace.createCarForSale("V1",web3.utils.toWei('1', 'Ether'),"carInfo1_IpfsHash","image1_IpfsHash",{from: seller1});
+			
+			try {
+				//Seller1 is buying the car which is invalid
+				tx = await carMarketPlace.buyCarFromSeller(1,{from: seller1});
+				assert.fail();
+			} catch (err) {
+				assert.ok(/revert/.test(err.message));
+			}			
+			
+		});
+		
+		it("Should throw error when buyer sends lesser value of the car price.", async () => {		
+			let tx = await carMarketPlace.createCarForSale("V1",web3.utils.toWei('1', 'Ether'),"carInfo1_IpfsHash","image1_IpfsHash",{from: seller1});
+			
+			try {
+				//Price is low compared to the actual price of the car
+				tx = await carMarketPlace.buyCarFromSeller(1,{from: buyer1, value: web3.utils.toWei('0.5', 'Ether')});
+				assert.fail();
+			} catch (err) {
+				assert.ok(/revert/.test(err.message));
+			}			
+		});
+		
+		/*it("Should throw error when buyer does not have enough balance to purchase the car.", async () => {		
+			let tx = await carMarketPlace.createCarForSale("V1",web3.utils.toWei('101', 'Ether'),"carInfo1_IpfsHash","image1_IpfsHash",{from: seller1});
+			
+			//console.log('balance-> ', buyer1.getBalance());
+			let buyer1Balance;
+			buyer1Balance = await web3.eth.getBalance(buyer1);
+			//buyer1Balance = new web3.utils.BN(buyer1Balance)
+			console.log('buyer1Balance-> ', buyer1Balance); //90988394280000000000
+						
+			try {
+				//Buyer1 does not have enough balance
+				tx = await carMarketPlace.buyCarFromSeller(1,{from: buyer1, value: web3.utils.toWei('101', 'Ether')});
+				assert.fail();
+			} catch (err) {
+				assert.ok(/revert/.test(err.message));
+			}			
+			
+		});*/
+		
+		
+	});
+	
+	
+	
 	
 	it("Sets an owner.", async () => {
 		//let carMarketPlace = await CarMarketPlace.deployed();
