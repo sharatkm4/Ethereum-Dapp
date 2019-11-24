@@ -1,23 +1,25 @@
 $(document).ready(function () {
     const ethereumProvider = ethers.providers.getDefaultProvider('ropsten');
     //const carMarketplaceContractAddress = "0xbaaa528c6ba3210ae4c4a7afe041f2545882719c";	//V1
+	//const carMarketplaceContractAddress = "0xf9316ce5cd90f48d6ce95f4852bda45a22d0ee19"; 	//V2
 	//Car marketPlace contract address
-	const carMarketplaceContractAddress = "0xf9316ce5cd90f48d6ce95f4852bda45a22d0ee19"; 	//V2
+	const carMarketplaceContractAddress = "0x3f18b216889d768a038accee2fadabc033873d91"; 	//V3
+	//https://ropsten.etherscan.io/tx/0x54e5bc12dd25348c2baa3b604162d4aa9fb1eb55565b6a315d6472446ff1e4b5
 	//Car marketPlace contract ABI
     const carMarketplaceContractABI = [
 	{
-		"constant": true,
-		"inputs": [],
-		"name": "carCount",
-		"outputs": [
+		"constant": false,
+		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "",
+				"name": "_id",
 				"type": "uint256"
 			}
 		],
-		"payable": false,
-		"stateMutability": "view",
+		"name": "buyCarFromSeller",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -51,108 +53,6 @@ $(document).ready(function () {
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_id",
-				"type": "uint256"
-			}
-		],
-		"name": "buyCarFromSeller",
-		"outputs": [],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "carsMap",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "vin",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "price",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "carInfoIpfsHash",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "imageIpfsHash",
-				"type": "string"
-			},
-			{
-				"internalType": "address payable",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"internalType": "bool",
-				"name": "purchased",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"internalType": "address payable",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"name": "uniqueVinMap",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"inputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -164,7 +64,7 @@ $(document).ready(function () {
 			{
 				"indexed": false,
 				"internalType": "uint256",
-				"name": "carCount",
+				"name": "carId",
 				"type": "uint256"
 			},
 			{
@@ -213,7 +113,7 @@ $(document).ready(function () {
 			{
 				"indexed": false,
 				"internalType": "uint256",
-				"name": "id",
+				"name": "carId",
 				"type": "uint256"
 			},
 			{
@@ -286,6 +186,108 @@ $(document).ready(function () {
 		],
 		"name": "sellerAndSmartContractBalanceAfterPurchase",
 		"type": "event"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "carCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "carsMap",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "vin",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "carInfoIpfsHash",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "imageIpfsHash",
+				"type": "string"
+			},
+			{
+				"internalType": "address payable",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "bool",
+				"name": "purchased",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "contractOwner",
+		"outputs": [
+			{
+				"internalType": "address payable",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"name": "uniqueVinMap",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
 	}
 ];
 
