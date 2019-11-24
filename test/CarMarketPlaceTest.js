@@ -21,18 +21,6 @@ contract("CarMarketPlace", async accounts => {
 		carMarketPlace = await CarMarketPlace.new();		
 	});
 	
-	/*it('adds correctly with overflow', async function () {
-			//console.log(MAX_UINT256);		
-			assert.equal(await carMarketPlace.buyCarFromSeller2.call(2,3), 5);
-					
-			try {			
-				let tx = await carMarketPlace.buyCarFromSeller2.call(MAX_UINT256,1);
-				assert.fail();
-			} catch (err) {
-				assert.ok(/revert/.test(err.message));
-			}
-	});*/
-	
 	describe('Selling Car', async () => {
 		it("Sets an owner.", async () => {
 			//let carMarketPlace = await CarMarketPlace.deployed();

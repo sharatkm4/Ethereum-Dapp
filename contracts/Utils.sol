@@ -25,22 +25,20 @@ library Utils {
     function _safeMathDivide(uint256 a, uint256 b) internal pure returns (uint256) {
         require(b > 0, "_safeMathDivide : Denominator is 0"); // Solidity automatically throws when dividing by 0
         uint256 c = a / b;
-        require(a == b * c + a % b, "_safeMathDivide : Division Overflow"); // There is no case in which this doesn't hold
+        // require(a == b * c + a % b, "_safeMathDivide : Division Overflow"); // There is no case in which this doesn't hold
         return c;
     }
     
     // Allows for safely multiplying two numbers.
-    // Source --> Simple Timed Auction Homeowrk Assignment and https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol
-    function _safeMathMultiply(uint _a, uint _b) internal pure returns (uint) {
-        if (_a == 0 || _b == 0) {
+    // Source --> https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol
+    function _safeMathMultiply(uint a, uint b) internal pure returns (uint) {
+         if (a == 0) {
             return 0;
         }
-        
-        uint c = _a * _b;
-        
-        require(c / _a == _b, "_safeMathMultiply : Multiplication Overflow");
-        require(c / _b == _a, "_safeMathMultiply : Multiplication Overflow");
-        
+
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+
         return c;
     }
     
