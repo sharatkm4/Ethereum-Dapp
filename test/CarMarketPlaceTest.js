@@ -52,7 +52,7 @@ contract("CarMarketPlace", async accounts => {
 			}
 			
 			//Do we need this to test ?
-			tx = await carMarketPlace.buyCarFromSeller(1,{from: buyer1, value: web3.utils.toWei('1', 'Ether')});	
+			//tx = await carMarketPlace.buyCarFromSeller(1,{from: buyer1, value: web3.utils.toWei('1', 'Ether')});	
 			
 		});
 		
@@ -84,8 +84,8 @@ contract("CarMarketPlace", async accounts => {
 		it("Should throw error when buyer does not have enough balance to purchase the car.", async () => {		
 			let tx = await carMarketPlace.createCarForSale("V1",web3.utils.toWei('101', 'Ether'),"carInfo1_IpfsHash","image1_IpfsHash",{from: seller1});
 			
-			let buyer1Balance;
-			buyer1Balance = await web3.eth.getBalance(buyer1);
+			//let buyer1Balance;
+			//buyer1Balance = await web3.eth.getBalance(buyer1);
 			//buyer1Balance = new web3.utils.BN(buyer1Balance)
 			//console.log('buyer1Balance-> ', buyer1Balance); //90988394280000000000
 						
@@ -100,6 +100,59 @@ contract("CarMarketPlace", async accounts => {
 		});
 		
 		
+		it("Should transfer the ownership and update car as purchased", async () => {		
+			let tx = await carMarketPlace.createCarForSale("V1",web3.utils.toWei('1', 'Ether'),"carInfo1_IpfsHash","image1_IpfsHash",{from: seller1});
+			
+			await carMarketPlace.buyCarFromSeller(1,{from: buyer1, value: web3.utils.toWei('1', 'Ether')});
+			
+			let car = await carMarketPlace.carsMap.call(1);
+			assert.equal(car.id, '1', 'CarId is correct');
+			assert.equal(car.vin, 'V1', 'VIN is correct');
+			assert.equal(car.purchased, true, 'Purchased is correct');
+			assert.equal(car.owner, buyer1, 'CarId is correct');
+			
+		});
+		
+		it("Should transfer 95% of price to seller and 5% to buyer", async () => {		
+		
+			let tx = await carMarketPlace.createCarForSale("V1",web3.utils.toWei('1', 'Ether'),"carInfo1_IpfsHash","image1_IpfsHash",{from: seller1});
+			
+			// Seller balance before purchase
+			let seller1BalanceBeforePurchase = await web3.eth.getBalance(seller1)
+			console.log('seller1BalanceBeforePurchase-> ', seller1BalanceBeforePurchase); 
+			seller1BalanceBeforePurchase = new web3.utils.BN(seller1BalanceBeforePurchase)
+			
+			await carMarketPlace.buyCarFromSeller(1,{from: buyer1, value: web3.utils.toWei('1', 'Ether')});
+						
+			//Validate Car 1 
+			let car = await carMarketPlace.carsMap.call(1);
+			assert.equal(car.id, '1', 'CarId is correct');
+			assert.equal(car.vin, 'V1', 'VIN is correct');
+			assert.equal(car.price, '1000000000000000000', 'Price is correct');
+			assert.equal(car.carInfoIpfsHash, 'carInfo1_IpfsHash', 'CarInfo1_IpfsHash is correct');
+			assert.equal(car.imageIpfsHash, 'image1_IpfsHash', 'image1_IpfsHash is correct');
+			assert.equal(car.owner, buyer1, 'Car buyer is correct');
+			assert.equal(car.purchased, true, 'Purchased is true');
+			
+			
+			// Seller balance after purchase
+			let seller1BalanceAfterPurchase = await web3.eth.getBalance(seller1);
+			console.log('seller1BalanceAfterPurchase-> ', seller1BalanceAfterPurchase); 
+			seller1BalanceAfterPurchase = new web3.utils.BN(seller1BalanceAfterPurchase);
+			
+			//let price = new web3.utils.BN(950000000000000000); //95% of the money goes to seller
+			let price = web3.utils.toWei('0.95', 'Ether');
+			price = new web3.utils.BN(price);
+			
+			//assert.equal(seller1Balance, seller1Balance + 950000000000000000);
+			
+			const exepectedBalance = seller1BalanceBeforePurchase.add(price)
+
+			assert.equal(seller1BalanceAfterPurchase.toString(), exepectedBalance.toString())
+			
+			
+			
+		});
 		
 		
 	});
