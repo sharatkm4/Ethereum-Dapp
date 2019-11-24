@@ -5,10 +5,10 @@ import "./Utils.sol";
 contract CarMarketPlace {
     using Utils for *;
     
-    address payable public owner;
+    address payable public contractOwner;
     
     constructor() public {
-        owner = msg.sender;
+        contractOwner = msg.sender;
     }
     
     struct Car {
@@ -29,7 +29,7 @@ contract CarMarketPlace {
     mapping(string => bool) public uniqueVinMap;
     
     //Event to be triggered
-    event CarOnSale(uint carCount, string vin, uint price, string carInfoIpfsHash, string imageIpfsHash, address owner, bool purchased);
+    event CarOnSale(uint carId, string vin, uint price, string carInfoIpfsHash, string imageIpfsHash, address owner, bool purchased);
     
     //Validate input data for create car sale
 	modifier validateSellCarRequest(string memory vin, uint price, string memory carInfoIpfsHash, string memory imageIpfsHash) {
@@ -63,7 +63,7 @@ contract CarMarketPlace {
         emit CarOnSale(carCount, _vin, _price, _carInfoIpfsHash, _imageIpfsHash, msg.sender, false);
     }
     
-    event CarPurchasedFromSeller(uint id, string vin, uint price, string carInfoIpfsHash, string imageIpfsHash, address owner, bool purchased);
+    event CarPurchasedFromSeller(uint carId, string vin, uint price, string carInfoIpfsHash, string imageIpfsHash, address owner, bool purchased);
     
     event sellerAndSmartContractBalanceAfterPurchase(uint sellerBalanceBefore, uint amountToSendToSeller, uint sellerBalanceAfter, uint marketPlaceSmartContractBalance);
     

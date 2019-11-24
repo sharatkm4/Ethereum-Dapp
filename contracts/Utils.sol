@@ -4,21 +4,21 @@ library Utils {
     
     // Allow for safely adding two numbers.
     // Source --> https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol
-    function _safeMathAdd(uint256 a, uint256 b) internal pure returns (uint256) {
+    /*function _safeMathAdd(uint256 a, uint256 b) internal pure returns (uint256) {
         uint256 c = a + b;
         require(c >= a, "_safeMathAdd : Addition Overflow");
 
         return c;
-    }
+    }*/
     
     // Allows for safely subtracting two numbers.
     // Source --> https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol
-    function _safeMathSubtract(uint256 a, uint256 b) internal pure returns (uint256) {
+    /*function _safeMathSubtract(uint256 a, uint256 b) internal pure returns (uint256) {
         require(b <= a, "_safeMathSubtract : Subtraction Overflow");
         uint256 c = a - b;
 
         return c;
-    }
+    }*/
     
     // Allows for safely dividing two numbers.
     // Source --> https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol
@@ -46,9 +46,9 @@ library Utils {
     
     // Compares two strings for equality.
     // Reference --> https://ethereum.stackexchange.com/questions/30912/how-to-compare-strings-in-solidity
-    function _compareStringsEqual(string memory a, string memory b) internal pure returns (bool) {
+    /*function _compareStringsEqual(string memory a, string memory b) internal pure returns (bool) {
         return ( keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))) );
-    }
+    }*/
     
     // Allows for safely obtaining the Percentage of a Total Amount.
     // Source --> https://ethereum.stackexchange.com/questions/36272/get-percentage-of-gas-price-solidity-ethereum
@@ -58,10 +58,10 @@ library Utils {
     }
     
     // Source --> https://ethereum.stackexchange.com/questions/62222/address-payable-type-store-address-and-send-later-using-solidity-0-5-0
-    function _convertAddressToAddressPayable(address _incomingAddress) internal pure returns (address payable) {
+    /*function _convertAddressToAddressPayable(address _incomingAddress) internal pure returns (address payable) {
         address payable anAddressPayable = address(uint160(_incomingAddress));
         return anAddressPayable;
-    }
+    }*/
     
 }
 
