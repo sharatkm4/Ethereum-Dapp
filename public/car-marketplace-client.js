@@ -994,22 +994,25 @@ $(document).ready(function () {
     }
 	
 	
-	// Detect metamask account change.
-	// This method is not used currently.
-	let metamaskAccountChange;
-	function checkMetamaskAccountChange() {
-		const loggedIn = sessionStorage.username;
-		if(loggedIn){
-			//alert(metamaskAccountChange + '   ' + web3.eth.accounts[0]);			
-			if ( (web3.eth.accounts[0] !== metamaskAccountChange) && (metamaskAccountChange !== 'undefined') ) {
-				metamaskAccountChange = web3.eth.accounts[0];
-				console.log('Account changed....');
-				location.reload();
-			}
-		}		
+	// Detect metamask account change.	
+	try {
+		let metamaskAccountChange = web3.eth.accounts[0];	
+		function checkMetamaskAccountChange() {
+			const loggedIn = sessionStorage.username;
+			if(loggedIn){
+				console.log(metamaskAccountChange + '   ' + web3.eth.accounts[0]);			
+				if ( (web3.eth.accounts[0] !== metamaskAccountChange) && (metamaskAccountChange !== 'undefined') ) {
+					metamaskAccountChange = web3.eth.accounts[0];
+					console.log('Account changed and page will be refreshed....');
+					location.reload();
+				}
+			}		
+		}
+	} catch(err) {
+		console.log('Error while running checkMetamaskAccountChange:  ', err);
 	}
 	
-	//setInterval(checkMetamaskAccountChange, 5000);
+	setInterval(checkMetamaskAccountChange, 5000);
 
 });
 
