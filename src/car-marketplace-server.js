@@ -22,16 +22,16 @@ const userRepo = require('./user-repo');
 
 app.post('/login', (req, res) => {
     let user = userRepo.find(
-        req.body.username, req.body.password);
+        req.body.username, req.body.password, req.body.account);
     if (!user)
         return res.status(HttpStatus.NOT_FOUND).json(
-            {errorMsg: "Invalid username / password"});
+            {errorMsg: "Invalid username / password / Metamask Account"});
     return res.json({buyerSellerType: user.buyerSellerType});
 });
 
 app.post('/register', (req, res) => {
     userRepo.addUser(
-        req.body.username, req.body.password, req.body.buyerSellerType,
+        req.body.username, req.body.password, req.body.account, req.body.buyerSellerType,
         function success(user) {
             return res.json({"msg": "User successfully registered"});
         },

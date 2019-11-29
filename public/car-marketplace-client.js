@@ -506,15 +506,17 @@ $(document).ready(function () {
 		}
 		// hash the password with username and validate credentials on server side
 		let backendPassword = CryptoJS.HmacSHA256(username, loginPassword).toString();
+		let account = web3.eth.accounts[0];
 		try {
 			let result = await $.ajax({
 				type: 'POST',
 				url: `/login`,
-				data: JSON.stringify({username, password: backendPassword}),
+				data: JSON.stringify({username, password: backendPassword, account}),
 				contentType: 'application/json'
 			});
 			
-			sessionStorage['username'] = username;			
+			sessionStorage['username'] = username;
+			sessionStorage['metamaskAccount'] = account;			
 			sessionStorage['buyerSellerType'] = result.buyerSellerType;			
 			showView("viewHome");
 			showInfo(`User "${username}" logged in successfully.`);
@@ -553,15 +555,18 @@ $(document).ready(function () {
 			// hash the password with username and store it in back end
 			let backendPassword = CryptoJS.HmacSHA256(username, registerPassword).toString();
 						
+			let account = web3.eth.accounts[0];			
+			
 			let result = await $.ajax({
 				type: 'POST',
 				url: `/register`,
-				data: JSON.stringify({username, password: backendPassword, buyerSellerType}),
+				data: JSON.stringify({username, password: backendPassword, account, buyerSellerType}),
 				contentType: 'application/json'
 			});
 			
 			sessionStorage['username'] = username;			
 			sessionStorage['buyerSellerType'] = buyerSellerType;
+			sessionStorage['metamaskAccount'] = account;
 			showView("viewHome");
 			showInfo(`User "${username}" registered successfully.`);
 
@@ -771,6 +776,11 @@ $(document).ready(function () {
 			
 			console.log('metamask account: ', account);
 			
+			// Logged in user must use the same metamask account he had registered initially
+			if(sessionStorage.metamaskAccount !== account){
+				return showError("Invalid metamask account detected for the current user !!");
+			}
+			
 			//If seller is the buyer, return error !!
 			if(account === carOwner.toLowerCase()){
 				return showError("Invalid buyer !! Are you the seller ?");	
@@ -910,6 +920,11 @@ $(document).ready(function () {
 			let account = web3.eth.accounts[0];			
 			
 			console.log('metamask account: ', account);
+			
+			// Logged in user must use the same metamask account he had registered initially
+			if(sessionStorage.metamaskAccount !== account){
+				return showError("Invalid metamask account detected for the current user !!");
+			}
 			
 			//create car market place contract using metmask web3 library
 			let carMarketplaceContract = web3.eth.contract(carMarketplaceContractABI).at(carMarketplaceContractAddress);
