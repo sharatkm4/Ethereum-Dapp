@@ -6,9 +6,13 @@ contract CarMarketPlace {
     using Utils for *;
     
     address payable public contractOwner;
+	uint private startTime;
+    uint private durationTime;
     
     constructor() public {
         contractOwner = msg.sender;
+		startTime = now;
+        durationTime = 2592000; //30 days
     }
     
     struct Car {
@@ -123,6 +127,28 @@ contract CarMarketPlace {
         
         //Trigger event for seller and smartContract balance after car purchase
         emit sellerAndSmartContractBalanceAfterPurchase(sellerBalanceBefore, amountToSendToSeller, sellerBalanceAfter, marketPlaceSmartContractBalance);
+    }
+	
+	//validate only owner can shut down marketplace (kill contract)
+	modifier onlyOwner(address addr) {
+        require(contractOwner == msg.sender, "Only owner can send amount !!");
+        _;
+    }
+	
+	/*modifier marketPlaceDurationCheck() {        
+        require((now - startTime) > durationTime, "Sorry, the auction has ended !!");
+        _;
+    }*/
+    
+    event MarketPlaceShutDown(string msg);
+    
+	
+	//Contract Self Destruction Pattern
+	//This method will allow contract owner to shut down marketplace (kill contract) only after 30 days 
+	// from the marketplace has started (contract is deployed)
+    function marketPlaceShutDown() public onlyOwner(msg.sender) {
+        emit MarketPlaceShutDown("Car Marketplace has been shut down by the owner !!");
+        selfdestruct(contractOwner);
     }
     
 }

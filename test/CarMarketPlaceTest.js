@@ -542,5 +542,36 @@ contract("CarMarketPlace", async accounts => {
 		
 	});
 	
+	describe('Marketplace shutdown', async () => {
+		it("Should not shut down marketplace (kill contract) if not owner", async () => {
+			try {
+				//seller1 is not owner and cannot shut down marketplace (kill contract) 
+				let tx = await carMarketPlace.marketPlaceShutDown({from: seller1});
+				assert.fail();
+			} catch (err) {
+				assert.ok(/revert/.test(err.message));
+			}
+		});
+		
+		it("Should successfuly shut down marketplace (kill contract) by owner", async () => {
+			// Success:  Shut down marketplace (kill contract)
+			let tx = await carMarketPlace.marketPlaceShutDown({from: contractOwner});				
+			
+			//Validate event generated
+			assert.equal(tx.logs.length, 1, "marketPlaceShutDown() call did not log 1 event");
+			assert.equal(tx.logs[0].event, "MarketPlaceShutDown", "marketPlaceShutDown() call did not log event CarOnSale");		
+			const event = tx.logs[0].args;
+			assert.equal(event.msg, 'Car Marketplace has been shut down by the owner !!', 'Shudown is complete');
+			
+			//Validate to make sure contract is not accessible
+			try {
+				await carMarketPlace.carCount.call();				
+			} catch (err) {
+				assert.equal(err.message, "Returned values aren't valid, did it run Out of Gas?");				
+			}			
+
+		});
+	});	
+	
 	
 });
