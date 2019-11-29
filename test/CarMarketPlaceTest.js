@@ -1,5 +1,9 @@
 const CarMarketPlace = artifacts.require("CarMarketPlace");
+const utils = require("./utils.js");
 const BN = web3.utils.BN;
+const THIRTY_DAYS = 3600 * 24 * 30;
+const THIRTY_ONE_DAYS = 3600 * 24 * 31;
+
 
 contract("CarMarketPlace", async accounts => {
 	
@@ -553,7 +557,21 @@ contract("CarMarketPlace", async accounts => {
 			}
 		});
 		
-		it("Should successfuly shut down marketplace (kill contract) by owner", async () => {
+		it("Should not shut down marketplace (kill contract) if less than or equal to 30 days", async () => {
+			try {
+				//Move the EVM timestamp to 30 days ahead
+				await utils.timeTravel(web3, THIRTY_DAYS);
+				//Owner cannot shut down marketplace (kill contract) on or before 30 days
+				let tx = await carMarketPlace.marketPlaceShutDown({from: contractOwner});
+				assert.fail();
+			} catch (err) {
+				assert.ok(/revert/.test(err.message));
+			}
+		});
+		
+		it("Should successfuly shut down marketplace (kill contract) by owner after 30 days", async () => {
+			//Move the EVM timestamp to 31 days ahead
+			await utils.timeTravel(web3, THIRTY_ONE_DAYS);
 			// Success:  Shut down marketplace (kill contract)
 			let tx = await carMarketPlace.marketPlaceShutDown({from: contractOwner});				
 			

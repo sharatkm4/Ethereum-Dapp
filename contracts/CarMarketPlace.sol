@@ -135,19 +135,21 @@ contract CarMarketPlace {
         _;
     }
 	
-	/*modifier marketPlaceDurationCheck() {        
-        require((now - startTime) > durationTime, "Sorry, the auction has ended !!");
+	//Marketplace can be shut down only after 30 days
+	modifier marketPlaceDurationCheck() {        
+        require((now - startTime) > durationTime, "Sorry, cannot shut down marketplace (kill contract) before 30 days !!");
         _;
-    }*/
+    }
     
-    event MarketPlaceShutDown(string msg);
-    
+    event MarketPlaceShutDown(string msg);    
 	
 	//Contract Self Destruction Pattern
-	//This method will allow contract owner to shut down marketplace (kill contract) only after 30 days 
-	// from the marketplace has started (contract is deployed)
-    function marketPlaceShutDown() public onlyOwner(msg.sender) {
+	//This method will allow contract owner to shut down marketplace (kill contract) only after 
+	//30 days from the marketplace was started (contract deployed).
+    function marketPlaceShutDown() public onlyOwner(msg.sender) marketPlaceDurationCheck {
+		//Generate event
         emit MarketPlaceShutDown("Car Marketplace has been shut down by the owner !!");
+		//Kill contract and contract money is transfered to owner.
         selfdestruct(contractOwner);
     }
     
