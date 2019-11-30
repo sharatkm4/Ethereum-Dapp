@@ -4,8 +4,11 @@ $(document).ready(function () {
 	//const carMarketplaceContractAddress = "0x3f18b216889d768a038accee2fadabc033873d91"; 	//V1
 	//https://ropsten.etherscan.io/tx/0x54e5bc12dd25348c2baa3b604162d4aa9fb1eb55565b6a315d6472446ff1e4b5
 	
-	const carMarketplaceContractAddress = "0xFc6Fd05649fEA3450894cBC97D0e7935657cd995"; 	//V2 (with shutdown)
+	//const carMarketplaceContractAddress = "0xFc6Fd05649fEA3450894cBC97D0e7935657cd995"; 	//V2 (with kill contract functionality)
 	//https://ropsten.etherscan.io/tx/0x372b0d232a2f1f2b7a637c01e724cdf64f24ab6b3ff4ad234bf75d9ff3799cb4
+	
+	const carMarketplaceContractAddress = "0x42f18F461D87fBa9685F0c0D73d5b354b7E4572b"; 	//V3 (for demo)
+	//https://ropsten.etherscan.io/tx/0x3fd19cc1b18d5bc25bdf9d0999694258886ed6fd9aa30cd506e78b106ed211d0
 	
 	//Car marketPlace contract ABI
     const carMarketplaceContractABI = [
