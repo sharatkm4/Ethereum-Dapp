@@ -8,7 +8,7 @@ If logged in as a buyer, user can buy the car and transfer money to seller in et
 User with or without logging in can see the list of cars for sale from all the sellers. <br/>
 The images are stored in IPFS. <br/>
 
-Key Components: <br/>
+<b>Key Components:</b> <br/>
 JavaScript and JQuery based front end <br/>
 &emsp;&emsp;Used to communicate with the Contract using MetaMask <br/>
 ExpressJs Back end <br/>
