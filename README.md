@@ -1,7 +1,7 @@
 # Ethereum-DApp
 Ethereum based DApp project as part of Kingsland University course.
 
-A simple ethereum based DApp application which provides a decentralized marketplace for buying and selling used cars. 
+<b>A simple ethereum based DApp application which provides a decentralized marketplace for buying and selling used cars. </b>
 
 If logged in as a seller, user can create/list cars for sale. <br/>
 If logged in as a buyer, user can buy the car and transfer money to seller in ethers. <br/>
@@ -19,7 +19,7 @@ Smart Contract (Solidity) <br/>
 &emsp;&emsp;For Buying and selling cars on ethereum blockchain (Ropsten) <br/>
 Truffle framework for Unit Testing and Coverage <br/> <br/>
 
-Steps to run: <br/>
+<b>Steps to run:</b> <br/>
 Run node js <br/>
 &emsp;&emsp;node src/car-marketplace-server.js <br/>
 Run IPFS <br/>
