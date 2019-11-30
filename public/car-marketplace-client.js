@@ -1,10 +1,12 @@
 $(document).ready(function () {
     const ethereumProvider = ethers.providers.getDefaultProvider('ropsten');
-    //const carMarketplaceContractAddress = "0xbaaa528c6ba3210ae4c4a7afe041f2545882719c";	//V1
-	//const carMarketplaceContractAddress = "0xf9316ce5cd90f48d6ce95f4852bda45a22d0ee19"; 	//V2
 	//Car marketPlace contract address
-	const carMarketplaceContractAddress = "0x3f18b216889d768a038accee2fadabc033873d91"; 	//V3
+	//const carMarketplaceContractAddress = "0x3f18b216889d768a038accee2fadabc033873d91"; 	//V1
 	//https://ropsten.etherscan.io/tx/0x54e5bc12dd25348c2baa3b604162d4aa9fb1eb55565b6a315d6472446ff1e4b5
+	
+	const carMarketplaceContractAddress = "0xFc6Fd05649fEA3450894cBC97D0e7935657cd995"; 	//V2 (with shutdown)
+	//https://ropsten.etherscan.io/tx/0x372b0d232a2f1f2b7a637c01e724cdf64f24ab6b3ff4ad234bf75d9ff3799cb4
+	
 	//Car marketPlace contract ABI
     const carMarketplaceContractABI = [
 	{
@@ -47,6 +49,15 @@ $(document).ready(function () {
 			}
 		],
 		"name": "createCarForSale",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "marketPlaceShutDown",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -185,6 +196,19 @@ $(document).ready(function () {
 			}
 		],
 		"name": "sellerAndSmartContractBalanceAfterPurchase",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "msg",
+				"type": "string"
+			}
+		],
+		"name": "MarketPlaceShutDown",
 		"type": "event"
 	},
 	{
@@ -731,7 +755,7 @@ $(document).ready(function () {
 						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Model:</b> ${carInfoJson.model} <br/> ` + 
 						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Year:</b> ${carInfoJson.year} <br/> ` + 
 						`&nbsp;&nbsp;&nbsp;&nbsp;<b>Price:</b> ${car.price} (in WEI)<br/>  ` + 
-						`<img src='https://ipfs.io/ipfs/${car.imageIpfsHash}' alt='${carInfoJson.make} ${carInfoJson.model}' style='width:400px;height:200px;' > <br/><br/><br/>`);
+						`<img src='https://ipfs.io/ipfs/${car.imageIpfsHash}' alt='${carInfoJson.make} ${carInfoJson.model}' style='width:400px;height:200px;' > <br/><br/><br/><hr>`);
 						li.appendTo(carResultsUl);						
 					}
 				}
@@ -755,7 +779,7 @@ $(document).ready(function () {
 	//	carId - ID of the car
 	// 	carPrice - carPrice set by the seller
 	// 	carOwner - seller ethereum address
-	function buyCarFromSeller(carId, carPrice, carOwner) {	
+	async function buyCarFromSeller(carId, carPrice, carOwner) {	
 		
 		//validate carId
 		carId = parseInt(carId);
@@ -788,6 +812,11 @@ $(document).ready(function () {
 
 			let carMarketplaceContract = web3.eth.contract(carMarketplaceContractABI).at(carMarketplaceContractAddress);
 			console.log('carMarketplaceContract: ', carMarketplaceContract);
+			
+			//Before buying car, make sure the marketplace is not shutdown (contract not killed)
+			let carCount = await carMarketplaceContractEthers.carCount();
+			if(!carCount)
+				return showError("Marketplace is shutdown and cannot buy/sell car!!");
 			
 			//https://ethereum.stackexchange.com/questions/45398/call-a-payable-function-and-pay-ether-with-metamask			
 			//var etherAmount = web3.toBigNumber($("#id_of_field_with_ether_value").val());
@@ -848,7 +877,7 @@ $(document).ready(function () {
 	}
 	
 	//Create or List car for sale. This option is available only for registered sellers
-	function createCarSale() {
+	async function createCarSale() {
 		
 		//Validate VIN
 		let carSaleVIN = $('#carSaleVINId').val();		
@@ -929,6 +958,11 @@ $(document).ready(function () {
 			//create car market place contract using metmask web3 library
 			let carMarketplaceContract = web3.eth.contract(carMarketplaceContractABI).at(carMarketplaceContractAddress);
 			console.log('carMarketplaceContract: ', carMarketplaceContract);
+			
+			//Before buying car, make sure the marketplace is not shutdown (contract not killed)
+			let carCount = await carMarketplaceContractEthers.carCount();
+			if(!carCount)
+				return showError("Marketplace is shutdown and cannot buy/sell car!!");
 			
 			//validate image
 			if($('#carImageForUpload')[0].files.length === 0) {
